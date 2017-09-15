@@ -1,7 +1,8 @@
 import React from "react";
 import { StyleSheet, View, ScrollView, Text, Image, Dimensions, TouchableOpacity } from "react-native";
-import { SimpleLineIcons } from "react-native-vector-icons";
+import { SimpleLineIcons, MaterialIcons } from "react-native-vector-icons";
 import MapView from 'react-native-maps';
+import { ImagePicker } from 'expo';
 // import * as _ from 'lodash';
 // import { PhotoGrid } from 'react-native-photo-grid-frame';
 
@@ -51,6 +52,7 @@ export default class Profile extends React.Component {
         longitudeDelta: LONGITUDE_DELTA,
       },
       markers: [],
+      image: null
     };
   }
 
@@ -108,7 +110,21 @@ export default class Profile extends React.Component {
     });
   }
 
+  _pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+
+    console.log(result);
+
+    if (!result.cancelled) {
+      this.setState({ image: result.uri });
+    }
+  };
+
   render() {
+    let { image } = this.state;
     return (
       <View style={{ flex: 1, paddingTop: 25, backgroundColor: "white" }}>
         <View style={{ margin: 8, alignSelf: "flex-end", flexDirection: "row" }}>
@@ -137,6 +153,10 @@ export default class Profile extends React.Component {
         </View>
 
         <ScrollView style={{ marginLeft: 18, marginRight: 18}}>
+
+        <MaterialIcons name="add-a-photo" size={40} color="grey" style={{ marginTop: 8 }} onPress={this._pickImage}/>
+        {image &&
+        <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
 
           <View style={styles.container}>
             <MapView
