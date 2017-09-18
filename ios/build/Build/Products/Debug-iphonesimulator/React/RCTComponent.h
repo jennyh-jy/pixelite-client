@@ -9,15 +9,6 @@
 
 #import <CoreGraphics/CoreGraphics.h>
 
-#import <Foundation/Foundation.h>
-
-/**
- * These block types can be used for mapping input event handlers from JS to view
- * properties. Unlike JS method callbacks, these can be called multiple times.
- */
-typedef void (^RCTDirectEventBlock)(NSDictionary *body);
-typedef void (^RCTBubblingEventBlock)(NSDictionary *body);
-
 /**
  * Logical node in a tree of application components. Both `ShadowView` and
  * `UIView` conforms to this. Allows us to write utilities that reason about
@@ -29,7 +20,7 @@ typedef void (^RCTBubblingEventBlock)(NSDictionary *body);
 
 - (void)insertReactSubview:(id<RCTComponent>)subview atIndex:(NSInteger)atIndex;
 - (void)removeReactSubview:(id<RCTComponent>)subview;
-- (NSArray<id<RCTComponent>> *)reactSubviews;
+- (NSArray *)reactSubviews;
 - (id<RCTComponent>)reactSuperview;
 - (NSNumber *)reactTagAtPoint:(CGPoint)point;
 
@@ -37,18 +28,6 @@ typedef void (^RCTBubblingEventBlock)(NSDictionary *body);
 - (BOOL)isReactRootView;
 
 @optional
-
-/**
- * Called each time props have been set.
- * Not all props have to be set - React can set only changed ones.
- * @param changedProps String names of all set props.
- */
-- (void)didSetProps:(NSArray<NSString *> *)changedProps;
-
-/**
- * Called each time subviews have been updated
- */
-- (void)didUpdateReactSubviews;
 
 // TODO: Deprecate this
 // This method is called after layout has been performed for all views known

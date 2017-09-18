@@ -9,8 +9,11 @@
 
 #import <Foundation/Foundation.h>
 
-#import <React/RCTBridgeModule.h>
+#import "RCTBridgeModule.h"
 
 @interface RCTSourceCode : NSObject <RCTBridgeModule>
+
+@property (nonatomic, copy) NSString *scriptText;
+@property (nonatomic, copy) NSURL *scriptURL;
 
 @end

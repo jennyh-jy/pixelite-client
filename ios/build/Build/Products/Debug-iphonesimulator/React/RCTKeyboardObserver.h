@@ -7,8 +7,10 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <React/RCTEventEmitter.h>
+#import <Foundation/Foundation.h>
 
-@interface RCTKeyboardObserver : RCTEventEmitter
+#import "RCTBridgeModule.h"
+
+@interface RCTKeyboardObserver : NSObject <RCTBridgeModule>
 
 @end

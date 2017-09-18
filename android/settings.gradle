@@ -1,5 +1,15 @@
-include ':app'
+rootProject.name = 'PixeliteCli'
+include ':react-native-image-picker'
+project(':react-native-image-picker').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-image-picker/android')
+include ':react-native-media-meta'
+project(':react-native-media-meta').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-media-meta/android')
+include ':react-native-exif'
+project(':react-native-exif').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-exif/android')
+include ':react-native-maps'
+project(':react-native-maps').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-maps/lib/android')
+include ':react-native-vector-icons'
+project(':react-native-vector-icons').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-vector-icons/android')
 include ':react-native-image-crop-picker'
 project(':react-native-image-crop-picker').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-image-crop-picker/android')
-include ':react-native-video'
-project(':react-native-video').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-video/android')
+
+include ':app'

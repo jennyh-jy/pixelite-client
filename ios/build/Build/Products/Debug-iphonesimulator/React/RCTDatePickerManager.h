@@ -7,8 +7,8 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <React/RCTConvert.h>
-#import <React/RCTViewManager.h>
+#import "RCTViewManager.h"
+#import "RCTConvert.h"
 
 @interface RCTConvert(UIDatePicker)
 

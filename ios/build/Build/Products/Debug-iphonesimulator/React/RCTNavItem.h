@@ -9,18 +9,13 @@
 
 #import <UIKit/UIKit.h>
 
-#import <React/RCTComponent.h>
-
 @interface RCTNavItem : UIView
 
 @property (nonatomic, copy) NSString *title;
-@property (nonatomic, strong) UIImage *titleImage;
 @property (nonatomic, strong) UIImage *leftButtonIcon;
 @property (nonatomic, copy) NSString *leftButtonTitle;
-@property (nonatomic, assign) UIBarButtonSystemItem leftButtonSystemIcon;
 @property (nonatomic, strong) UIImage *rightButtonIcon;
 @property (nonatomic, copy) NSString *rightButtonTitle;
-@property (nonatomic, assign) UIBarButtonSystemItem rightButtonSystemIcon;
 @property (nonatomic, strong) UIImage *backButtonIcon;
 @property (nonatomic, copy) NSString *backButtonTitle;
 @property (nonatomic, assign) BOOL navigationBarHidden;
@@ -30,12 +25,8 @@
 @property (nonatomic, strong) UIColor *titleTextColor;
 @property (nonatomic, assign) BOOL translucent;
 
-@property (nonatomic, readonly) UIImageView *titleImageView;
 @property (nonatomic, readonly) UIBarButtonItem *backButtonItem;
 @property (nonatomic, readonly) UIBarButtonItem *leftButtonItem;
 @property (nonatomic, readonly) UIBarButtonItem *rightButtonItem;
-
-@property (nonatomic, copy) RCTBubblingEventBlock onLeftButtonPress;
-@property (nonatomic, copy) RCTBubblingEventBlock onRightButtonPress;
 
 @end

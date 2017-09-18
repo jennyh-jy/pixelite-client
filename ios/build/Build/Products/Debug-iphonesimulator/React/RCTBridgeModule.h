@@ -9,10 +9,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import <React/RCTDefines.h>
+#import "RCTDefines.h"
 
 @class RCTBridge;
-@protocol RCTBridgeMethod;
 
 /**
  * The type of a block that is capable of sending a response to a bridged
@@ -37,7 +36,7 @@ typedef void (^RCTPromiseResolveBlock)(id result);
  * The error may be nil but it is preferable to pass an NSError object for more
  * precise error messages.
  */
-typedef void (^RCTPromiseRejectBlock)(NSString *code, NSString *message, NSError *error);
+typedef void (^RCTPromiseRejectBlock)(NSError *error);
 
 /**
  * This constant can be returned from +methodQueue to force module
@@ -76,7 +75,7 @@ RCT_EXTERN void RCTRegisterModule(Class); \
  * will be set automatically by the bridge when it initializes the module.
  * To implement this in your module, just add `@synthesize bridge = _bridge;`
  */
-@property (nonatomic, weak, readonly) RCTBridge *bridge;
+@property (nonatomic, weak) RCTBridge *bridge;
 
 /**
  * The queue that will be used to call all exported methods. If omitted, this
@@ -94,7 +93,7 @@ RCT_EXTERN void RCTRegisterModule(Class); \
  * }
  *
  * If you don't want to specify the queue yourself, but you need to use it
- * inside your class (e.g. if you have internal methods that need to dispatch
+ * inside your class (e.g. if you have internal methods that need to disaptch
  * onto that queue), you can just add `@synthesize methodQueue = _methodQueue;`
  * and the bridge will populate the methodQueue property for you automatically
  * when it initializes the module.
@@ -145,25 +144,6 @@ RCT_EXTERN void RCTRegisterModule(Class); \
   RCT_REMAP_METHOD(, method)
 
 /**
- * Same as RCT_EXPORT_METHOD but the method is called from JS
- * synchronously **on the JS thread**, possibly returning a result.
- *
- * WARNING: in the vast majority of cases, you should use RCT_EXPORT_METHOD which
- * allows your native module methods to be called asynchronously: calling
- * methods synchronously can have strong performance penalties and introduce
- * threading-related bugs to your native modules.
- *
- * The return type must be of object type (id) and should be serializable
- * to JSON. This means that the hook can only return nil or JSON values
- * (e.g. NSNumber, NSString, NSArray, NSDictionary).
- *
- * Calling these methods when running under the websocket executor
- * is currently not supported.
- */
-#define RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(method) \
-  RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(, method)
-
-/**
  * Similar to RCT_EXPORT_METHOD but lets you set the JS name of the exported
  * method. Example usage:
  *
@@ -172,20 +152,8 @@ RCT_EXTERN void RCTRegisterModule(Class); \
  * { ... }
  */
 #define RCT_REMAP_METHOD(js_name, method) \
-  _RCT_EXTERN_REMAP_METHOD(js_name, method, NO) \
-  - (void)method;
-
-/**
- * Similar to RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD but lets you set
- * the JS name of the exported method. Example usage:
- *
- * RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(executeQueryWithParameters,
- *   executeQuery:(NSString *)query parameters:(NSDictionary *)parameters)
- * { ... }
- */
-#define RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(js_name, method) \
-  _RCT_EXTERN_REMAP_METHOD(js_name, method, YES) \
-  - (id)method;
+  RCT_EXTERN_REMAP_METHOD(js_name, method) \
+  - (void)method
 
 /**
  * Use this macro in a private Objective-C implementation file to automatically
@@ -204,7 +172,7 @@ RCT_EXTERN void RCTRegisterModule(Class); \
  *
  * MyModuleExport.m:
  *
- *   #import <React/RCTBridgeModule.h>
+ *   #import "RCTBridgeModule.h"
  *
  *   @interface RCT_EXTERN_MODULE(MyModule, NSObject)
  *
@@ -234,52 +202,29 @@ RCT_EXTERN void RCTRegisterModule(Class); \
  * of an external module.
  */
 #define RCT_EXTERN_METHOD(method) \
-  _RCT_EXTERN_REMAP_METHOD(, method, NO)
+  RCT_EXTERN_REMAP_METHOD(, method)
 
 /**
- * Use this macro in accordance with RCT_EXTERN_MODULE to export methods
- * of an external module that should be invoked synchronously.
+ * Like RCT_EXTERN_REMAP_METHOD, but allows setting a custom JavaScript name.
  */
-#define RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(method) \
-  _RCT_EXTERN_REMAP_METHOD(, method, YES)
-
-/**
- * Like RCT_EXTERN_REMAP_METHOD, but allows setting a custom JavaScript name
- * and also whether this method is synchronous.
- */
-#define _RCT_EXTERN_REMAP_METHOD(js_name, method, is_blocking_synchronous_method) \
-  + (NSArray *)RCT_CONCAT(__rct_export__, \
-    RCT_CONCAT(js_name, RCT_CONCAT(__LINE__, __COUNTER__))) { \
-    return @[@#js_name, @#method, @is_blocking_synchronous_method]; \
-  }
-
-/**
- * Injects methods into JS.  Entries in this array are used in addition to any
- * methods defined using the macros above.  This method is called only once,
- * before registration.
- */
-- (NSArray<id<RCTBridgeMethod>> *)methodsToExport;
+#define RCT_EXTERN_REMAP_METHOD(js_name, method) \
+  + (NSArray *)RCT_CONCAT(__rct_export__, RCT_CONCAT(js_name, RCT_CONCAT(__LINE__, __COUNTER__))) { \
+    return @[@#js_name, @#method]; \
+  } \
 
 /**
  * Injects constants into JS. These constants are made accessible via
- * NativeModules.ModuleName.X.  It is only called once for the lifetime of the
- * bridge, so it is not suitable for returning dynamic values, but may be used
- * for long-lived values such as session keys, that are regenerated only as
- * part of a reload of the entire React application.
+ * NativeModules.ModuleName.X. This method is called when the module is
+ * registered by the bridge. It is only called once for the lifetime of the
+ * bridge, so it is not suitable for returning dynamic values, but may be
+ * used for long-lived values such as session keys, that are regenerated only
+ * as part of a reload of the entire React application.
  */
-- (NSDictionary<NSString *, id> *)constantsToExport;
+- (NSDictionary *)constantsToExport;
 
 /**
  * Notifies the module that a batch of JS method invocations has just completed.
  */
 - (void)batchDidComplete;
-
-/**
- * Notifies the module that the active batch of JS method invocations has been
- * partially flushed.
- *
- * This occurs before -batchDidComplete, and more frequently.
- */
-- (void)partialBatchDidFlush;
 
 @end

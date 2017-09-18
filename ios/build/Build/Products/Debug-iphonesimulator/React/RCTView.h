@@ -7,24 +7,21 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
+#import "RCTView.h"
+
 #import <UIKit/UIKit.h>
 
-#import <React/RCTBorderStyle.h>
-#import <React/RCTComponent.h>
-#import <React/RCTPointerEvents.h>
-#import <React/RCTView.h>
+#import "RCTPointerEvents.h"
 
 @protocol RCTAutoInsetsProtocol;
 
 @class RCTView;
+typedef void (^RCTViewEventHandler)(RCTView *view);
 
 @interface RCTView : UIView
 
-/**
- * Accessibility event handlers
- */
-@property (nonatomic, copy) RCTDirectEventBlock onAccessibilityTap;
-@property (nonatomic, copy) RCTDirectEventBlock onMagicTap;
+@property (nonatomic, copy) RCTViewEventHandler accessibilityTapHandler;
+@property (nonatomic, copy) RCTViewEventHandler magicTapHandler;
 
 /**
  * Used to control how touch events are processed.
@@ -39,13 +36,6 @@
  * Find the first view controller whose view, or any subview is the specified view.
  */
 + (UIEdgeInsets)contentInsetsForView:(UIView *)curView;
-
-/**
- * Layout direction of the view.
- * This is inherited from UIView+React, but we override it here
- * to improve perfomance and make subclassing/overriding possible/easier.
- */
-@property (nonatomic, assign) UIUserInterfaceLayoutDirection reactLayoutDirection;
 
 /**
  * This is an optimization used to improve performance
@@ -90,15 +80,5 @@
 @property (nonatomic, assign) CGFloat borderBottomWidth;
 @property (nonatomic, assign) CGFloat borderLeftWidth;
 @property (nonatomic, assign) CGFloat borderWidth;
-
-/**
- * Border styles.
- */
-@property (nonatomic, assign) RCTBorderStyle borderStyle;
-
-/**
- *  Insets used when hit testing inside this view.
- */
-@property (nonatomic, assign) UIEdgeInsets hitTestEdgeInsets;
 
 @end

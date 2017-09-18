@@ -9,8 +9,9 @@
 
 #import <UIKit/UIKit.h>
 
-#import <React/RCTViewControllerProtocol.h>
+#import "RCTViewControllerProtocol.h"
 
+@class RCTEventDispatcher;
 @class RCTNavItem;
 @class RCTWrapperViewController;
 
@@ -23,8 +24,11 @@ didMoveToNavigationController:(UINavigationController *)navigationController;
 
 @interface RCTWrapperViewController : UIViewController <RCTViewControllerProtocol>
 
-- (instancetype)initWithContentView:(UIView *)contentView NS_DESIGNATED_INITIALIZER;
-- (instancetype)initWithNavItem:(RCTNavItem *)navItem;
+- (instancetype)initWithContentView:(UIView *)contentView
+                    eventDispatcher:(RCTEventDispatcher *)eventDispatcher NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithNavItem:(RCTNavItem *)navItem
+                eventDispatcher:(RCTEventDispatcher *)eventDispatcher;
 
 @property (nonatomic, weak) id<RCTWrapperViewControllerNavigationListener> navigationListener;
 @property (nonatomic, strong) RCTNavItem *navItem;

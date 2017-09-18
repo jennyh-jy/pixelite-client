@@ -7,9 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#if __OBJC__
-#  import <Foundation/Foundation.h>
-#endif
+#import <Foundation/Foundation.h>
 
 /**
  * Make global functions usable in C++
@@ -50,16 +48,16 @@
 #define RCT_IF_DEV(...)
 #endif
 
-#ifndef RCT_PROFILE
-#define RCT_PROFILE RCT_DEV
-#endif
-
 /**
  * By default, only raise an NSAssertion in debug mode
  * (custom assert functions will still be called).
  */
 #ifndef RCT_NSASSERT
-#define RCT_NSASSERT RCT_DEBUG
+#if RCT_DEBUG
+#define RCT_NSASSERT 1
+#else
+#define RCT_NSASSERT 0
+#endif
 #endif
 
 /**

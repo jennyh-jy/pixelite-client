@@ -9,8 +9,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import <React/RCTBridge.h>
-#import <React/RCTBridgeModule.h>
+#import "RCTBridgeModule.h"
+#import "RCTBridge.h"
 
 extern NSString *const RCTAccessibilityManagerDidUpdateMultiplierNotification; // posted when multiplier is changed
 
@@ -19,9 +19,7 @@ extern NSString *const RCTAccessibilityManagerDidUpdateMultiplierNotification; /
 @property (nonatomic, readonly) CGFloat multiplier;
 
 /// map from UIKit categories to multipliers
-@property (nonatomic, copy) NSDictionary<NSString *, NSNumber *> *multipliers;
-
-@property (nonatomic, assign) BOOL isVoiceOverEnabled;
+@property (nonatomic, copy) NSDictionary *multipliers;
 
 @end
 

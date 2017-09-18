@@ -7,8 +7,8 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <React/RCTBridgeModule.h>
-#import <React/RCTInvalidating.h>
+#import "RCTBridgeModule.h"
+#import "RCTInvalidating.h"
 
 /**
  * A simple, asynchronous, persistent, key-value storage system designed as a
@@ -27,10 +27,13 @@
 
 @property (nonatomic, readonly, getter=isValid) BOOL valid;
 
-// NOTE(nikki): Added to allow scoped per Expo app
-- (instancetype)initWithStorageDirectory:(NSString *)storageDirectory;
+- (void)multiGet:(NSArray *)keys callback:(RCTResponseSenderBlock)callback;
+- (void)multiSet:(NSArray *)kvPairs callback:(RCTResponseSenderBlock)callback;
+- (void)multiRemove:(NSArray *)keys callback:(RCTResponseSenderBlock)callback;
+- (void)clear:(RCTResponseSenderBlock)callback;
+- (void)getAllKeys:(RCTResponseSenderBlock)callback;
 
-// Clear the RCTAsyncLocalStorage data from native code
-- (void)clearAllData;
+// For clearing data when the bridge may not exist, e.g. when logging out.
++ (void)clearAllData;
 
 @end

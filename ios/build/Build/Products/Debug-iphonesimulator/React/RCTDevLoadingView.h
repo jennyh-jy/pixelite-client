@@ -7,15 +7,8 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <React/RCTBridgeModule.h>
-
-@class RCTLoadingProgress;
+#import "RCTBridgeModule.h"
 
 @interface RCTDevLoadingView : NSObject <RCTBridgeModule>
-
-+ (void)setEnabled:(BOOL)enabled;
-- (void)showWithURL:(NSURL *)URL;
-- (void)updateProgress:(RCTLoadingProgress *)progress;
-- (void)hide;
 
 @end

@@ -9,9 +9,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import <React/RCTBridgeModule.h>
-#import <React/RCTFrameUpdate.h>
-#import <React/RCTInvalidating.h>
+#import "RCTBridgeModule.h"
+#import "RCTFrameUpdate.h"
+#import "RCTInvalidating.h"
 
 @interface RCTTiming : NSObject <RCTBridgeModule, RCTInvalidating, RCTFrameUpdateObserver>
 

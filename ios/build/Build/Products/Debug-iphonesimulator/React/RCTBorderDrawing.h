@@ -9,8 +9,6 @@
 
 #import <UIKit/UIKit.h>
 
-#import <React/RCTBorderStyle.h>
-
 typedef struct {
   CGFloat topLeft;
   CGFloat topRight;
@@ -41,7 +39,6 @@ BOOL RCTBorderColorsAreEqual(RCTBorderColors borderColors);
 
 /**
  * Convert RCTCornerRadii to RCTCornerInsets by applying border insets.
- * Effectively, returns radius - inset, with a lower bound of 0.0.
  */
 RCTCornerInsets RCTGetCornerInsets(RCTCornerRadii cornerRadii,
                                    UIEdgeInsets borderInsets);
@@ -55,14 +52,9 @@ CGPathRef RCTPathCreateWithRoundedRect(CGRect bounds,
                                        const CGAffineTransform *transform);
 
 /**
- * Draw a CSS-compliant border as an image. You can determine if it's scalable
- * by inspecting the image's `capInsets`.
- *
- * `borderInsets` defines the border widths for each edge.
+ * Draw a CSS-compliant border as a scalable image.
  */
-UIImage *RCTGetBorderImage(RCTBorderStyle borderStyle,
-                           CGSize viewSize,
-                           RCTCornerRadii cornerRadii,
+UIImage *RCTGetBorderImage(RCTCornerRadii cornerRadii,
                            UIEdgeInsets borderInsets,
                            RCTBorderColors borderColors,
                            CGColorRef backgroundColor,

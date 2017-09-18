@@ -1,29 +1,29 @@
 import React from 'react';
-import { StyleSheet, View, ScrollView, Text, TextInput, Image, TouchableOpacity, NativeModules } from 'react-native';
-import { MaterialIcons } from 'react-native-vector-icons';
+import { StyleSheet, View, ScrollView, Text, TextInput, Image, TouchableOpacity, NativeModules, CameraRoll } from 'react-native';
+import { Icon } from 'react-native-elements';
+// import Exif from 'react-native-exif';
+// import MediaMeta from 'react-native-media-meta';
+var ImagePicker = NativeModules.ImageCropPicker;
+// var SingleImagePicker = require('react-native-image-picker');
 
 import FloatingLabelInput from '../components/FloatingLabelInput';
-// import ImagePicker from 'react-native-image-crop-picker';
 
-var ImagePicker = NativeModules.ImageCropPicker;
-
-console.log('ddd',ImagePicker);
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  button: {
-    backgroundColor: 'blue',
-    marginBottom: 10
-  },
-  text: {
-    color: 'white',
-    fontSize: 20,
-    textAlign: 'center'
-  }
-});
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     justifyContent: 'center',
+//     alignItems: 'center'
+//   },
+//   button: {
+//     backgroundColor: 'blue',
+//     marginBottom: 10
+//   },
+//   text: {
+//     color: 'white',
+//     fontSize: 20,
+//     textAlign: 'center'
+//   }
+// });
 
 export default class NewStory extends React.Component {
   constructor(props) {
@@ -42,9 +42,7 @@ export default class NewStory extends React.Component {
       multiple: true,
       waitAnimationEnd: false
     }).then(images => {
-      console.log(images)
       this.setState({
-        image: null,
         images: images.map(i => {
           console.log('received image', i);
           return {uri: i.path, width: i.width, height: i.height, mime: i.mime};
@@ -54,6 +52,7 @@ export default class NewStory extends React.Component {
   }
 
   renderImage(image) {
+    console.log(image)
     return <Image style={{width: 300, height: 300, resizeMode: 'contain'}} source={image} />
   }
 
@@ -61,12 +60,13 @@ export default class NewStory extends React.Component {
     return this.renderImage(image);
   }
 
-
   render() {
+    console.log(CameraRoll)
+    console.log(this.getPhoto)
     return (
       <View style={{ flex: 1, paddingTop: 25, backgroundColor: 'white' }}>
         <View style={{ marginLeft: 8, marginRight: 8, alignSelf: "flex-start", flexDirection: "row" }}>
-          <MaterialIcons name="close" size={23} color="grey" style={{ marginLeft: 0 }}/>
+          <Icon type='material-community' name='close' color='grey' size={23} style={{ marginLeft: 0 }}/>
         </View>
         <ScrollView style={{ marginLeft: 18, marginRight: 18 }}>
           <FloatingLabelInput
@@ -80,8 +80,8 @@ export default class NewStory extends React.Component {
             {this.state.images ? this.state.images.map(i => <View key={i.uri}>{this.renderAsset(i)}</View>) : null}
           </ScrollView>
 
-          <TouchableOpacity onPress={this.pickMultiple.bind(this)} style={styles.button}>
-            <Text style={styles.text}>Select Multiple</Text>
+          <TouchableOpacity onPress={this.pickMultiple.bind(this)}>
+            <Text>Select Multiple</Text>
           </TouchableOpacity>
 
         </ScrollView>

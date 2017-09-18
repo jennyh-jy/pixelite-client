@@ -9,17 +9,8 @@
 
 #import <UIKit/UIKit.h>
 
-#import <React/RCTBridgeModule.h>
-#import <React/RCTInvalidating.h>
+#import "RCTBridgeModule.h"
 
-typedef NS_ENUM(NSInteger, RCTAlertViewStyle) {
-  RCTAlertViewStyleDefault = 0,
-  RCTAlertViewStyleSecureTextInput,
-  RCTAlertViewStylePlainTextInput,
-  RCTAlertViewStyleLoginAndPasswordInput
-};
-
-
-@interface RCTAlertManager : NSObject <RCTBridgeModule, RCTInvalidating>
+@interface RCTAlertManager : NSObject <RCTBridgeModule>
 
 @end

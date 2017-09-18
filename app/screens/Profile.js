@@ -1,10 +1,9 @@
 import React from "react";
 import { StyleSheet, View, ScrollView, Text, Image, Dimensions, TouchableOpacity } from "react-native";
-import { SimpleLineIcons, MaterialIcons } from "react-native-vector-icons";
+import { Icon } from 'react-native-elements'
 import MapView from 'react-native-maps';
-import { ImagePicker } from 'expo';
+// import { ImagePicker } from 'expo';
 // import * as _ from 'lodash';
-// import { PhotoGrid } from 'react-native-photo-grid-frame';
 
 // import {styles} from '../styles/styles';
 // import { onSignOut } from "../auth";
@@ -13,7 +12,7 @@ const IMAGE_URLS = [
   {uri: "https://s3.us-east-2.amazonaws.com/coderaising-cs/38824_1.jpg"},
   // {uri: "https://forums.imore.com/attachments/photography-videography/66363d1411762006t-show-us-some-photos-taken-iphone-6-imageuploadedbyimore-forums1411762005.474797.jpg"},
   // {uri: "https://forums.imore.com/attachments/iphone-6/66677d1411955559t-post-pictures-video-taken-your-iphone-6-imageuploadedbyimore-forums1411955558.906521.jpg"},
-  {uri: "http://lorempixel.com/400/400/nature"},
+  {uri: "https://forums.imore.com/attachments/photography-videography/66363d1411762006t-show-us-some-photos-taken-iphone-6-imageuploadedbyimore-forums1411762005.474797.jpg"},
   // {uri: "http://lorempixel.com/400/400/business"},
   {uri: "http://lorempixel.com/400/400/food"},
   {uri: "http://lorempixel.com/400/400/nightlife"},
@@ -128,8 +127,8 @@ export default class Profile extends React.Component {
     return (
       <View style={{ flex: 1, paddingTop: 25, backgroundColor: "white" }}>
         <View style={{ margin: 8, alignSelf: "flex-end", flexDirection: "row" }}>
-          <SimpleLineIcons name="map" size={23} color="grey" style={{ marginRight: 14 }}/>
-          <SimpleLineIcons name="settings" size={23} color="grey" style={{ marginRight: 7 }}/>
+          <Icon type='simple-line-icon' name="map" size={23} color="grey" style={{ marginRight: 14 }}/>
+          <Icon type='simple-line-icon' name="settings" size={23} color="grey" style={{ marginRight: 7 }}/>
         </View>
         <View
           style={{
@@ -153,11 +152,6 @@ export default class Profile extends React.Component {
         </View>
 
         <ScrollView style={{ marginLeft: 18, marginRight: 18}}>
-
-        <MaterialIcons name="add-a-photo" size={40} color="grey" style={{ marginTop: 8 }} onPress={this._pickImage}/>
-        {image &&
-        <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
-
           <View style={styles.container}>
             <MapView
               provider={this.props.provider}
@@ -182,9 +176,9 @@ export default class Profile extends React.Component {
             </View>
             <Text style={{ color: '#565656', fontFamily: 'Avenir', fontSize: 15, fontWeight: 'bold'}}>Backpacking in Australia</Text>
             <View style={{marginTop: 4, flexDirection: "row"}}>
-              <SimpleLineIcons name="calendar" size={15} color="grey" style={{ marginRight: 5 }}/>
+              <Icon type='simple-line-icon' name="calendar" size={15} color="grey" style={{ marginRight: 5 }}/>
               <Text style={{ color: 'grey', fontFamily: 'Avenir', fontSize: 10, marginRight: 10}}>July 16-21</Text>
-              <SimpleLineIcons name="location-pin" size={15} color="grey" style={{ marginRight: 5}}/>
+              <Icon type='simple-line-icon' name="location-pin" size={15} color="grey" style={{ marginRight: 5}}/>
               <Text style={{ color: 'grey', fontFamily: 'Avenir', fontSize: 10}}>Sydney, Australia</Text>
             </View>
           </View>
@@ -195,9 +189,9 @@ export default class Profile extends React.Component {
             </View>
             <Text style={{ color: '#565656', fontFamily: 'Avenir', fontSize: 15, fontWeight: 'bold'}}>Jeju with besties</Text>
             <View style={{marginTop: 4, flexDirection: "row"}}>
-              <SimpleLineIcons name="calendar" size={15} color="grey" style={{ marginRight: 5 }}/>
+              <Icon type='simple-line-icon' name="calendar" size={15} color="grey" style={{ marginRight: 5 }}/>
               <Text style={{ color: 'grey', fontFamily: 'Avenir', fontSize: 10, marginRight: 10}}>Aug 5-8</Text>
-              <SimpleLineIcons name="location-pin" size={15} color="grey" style={{ marginRight: 5}}/>
+              <Icon type='simple-line-icon' name="location-pin" size={15} color="grey" style={{ marginRight: 5}}/>
               <Text style={{ color: 'grey', fontFamily: 'Avenir', fontSize: 10}}>Jeju, South Korea</Text>
             </View>
           </View>
@@ -208,9 +202,9 @@ export default class Profile extends React.Component {
             </View>
             <Text style={{ color: '#565656', fontFamily: 'Avenir', fontSize: 15, fontWeight: 'bold'}}>All of the foods in Japan</Text>
             <View style={{marginTop: 4, flexDirection: "row"}}>
-              <SimpleLineIcons name="calendar" size={15} color="grey" style={{ marginRight: 5 }}/>
+              <Icon type='simple-line-icon' name="calendar" size={15} color="grey" style={{ marginRight: 5 }}/>
               <Text style={{ color: 'grey', fontFamily: 'Avenir', fontSize: 10, marginRight: 10}}>Mar 21-28</Text>
-              <SimpleLineIcons name="location-pin" size={15} color="grey" style={{ marginRight: 5}}/>
+              <Icon type='simple-line-icon' name="location-pin" size={15} color="grey" style={{ marginRight: 5}}/>
               <Text style={{ color: 'grey', fontFamily: 'Avenir', fontSize: 10}}>Tokyo, Japan</Text>
             </View>
           </View>
@@ -254,6 +248,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
 });
+
+// <MaterialIcons name="add-a-photo" size={40} color="grey" style={{ marginTop: 8 }} onPress={this._pickImage}/>
+// {image &&
+// <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+
 
 
 // <Card title="John Doe">

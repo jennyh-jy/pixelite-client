@@ -7,9 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <React/RCTView.h>
-
-@class RCTWebView;
+#import "RCTView.h"
 
 /**
  * Special scheme used to pass messages to the injectedJavaScript
@@ -19,30 +17,19 @@
  */
 extern NSString *const RCTJSNavigationScheme;
 
-@protocol RCTWebViewDelegate <NSObject>
-
-- (BOOL)webView:(RCTWebView *)webView
-shouldStartLoadForRequest:(NSMutableDictionary<NSString *, id> *)request
-   withCallback:(RCTDirectEventBlock)callback;
-
-@end
+@class RCTEventDispatcher;
 
 @interface RCTWebView : RCTView
 
-@property (nonatomic, weak) id<RCTWebViewDelegate> delegate;
-
-@property (nonatomic, copy) NSDictionary *source;
+@property (nonatomic, strong) NSURL *URL;
 @property (nonatomic, assign) UIEdgeInsets contentInset;
 @property (nonatomic, assign) BOOL automaticallyAdjustContentInsets;
-@property (nonatomic, assign) BOOL messagingEnabled;
 @property (nonatomic, copy) NSString *injectedJavaScript;
-@property (nonatomic, assign) BOOL scalesPageToFit;
+
+- (instancetype)initWithEventDispatcher:(RCTEventDispatcher *)eventDispatcher NS_DESIGNATED_INITIALIZER;
 
 - (void)goForward;
 - (void)goBack;
 - (void)reload;
-- (void)stopLoading;
-- (void)postMessage:(NSString *)message;
-- (void)injectJavaScript:(NSString *)script;
 
 @end

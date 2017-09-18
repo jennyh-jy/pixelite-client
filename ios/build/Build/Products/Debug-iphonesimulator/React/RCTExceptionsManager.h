@@ -9,23 +9,19 @@
 
 #import <Foundation/Foundation.h>
 
-#import <React/RCTBridgeModule.h>
+#import "RCTBridgeModule.h"
 
 @protocol RCTExceptionsManagerDelegate <NSObject>
 
-- (void)handleSoftJSExceptionWithMessage:(NSString *)message stack:(NSArray *)stack exceptionId:(NSNumber *)exceptionId;
-- (void)handleFatalJSExceptionWithMessage:(NSString *)message stack:(NSArray *)stack exceptionId:(NSNumber *)exceptionId;
-
-@optional
-- (void)updateJSExceptionWithMessage:(NSString *)message stack:(NSArray *)stack exceptionId:(NSNumber *)exceptionId;
+- (void)handleSoftJSExceptionWithMessage:(NSString *)message stack:(NSArray *)stack;
+- (void)handleFatalJSExceptionWithMessage:(NSString *)message stack:(NSArray *)stack;
+- (void)updateJSExceptionWithMessage:(NSString *)message stack:(NSArray *)stack;
 
 @end
 
 @interface RCTExceptionsManager : NSObject <RCTBridgeModule>
 
-- (instancetype)initWithDelegate:(id<RCTExceptionsManagerDelegate>)delegate;
-
-@property (nonatomic, weak) id<RCTExceptionsManagerDelegate> delegate;
+- (instancetype)initWithDelegate:(id<RCTExceptionsManagerDelegate>)delegate NS_DESIGNATED_INITIALIZER;
 
 @property (nonatomic, assign) NSUInteger maxReloadAttempts;
 

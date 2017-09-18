@@ -9,30 +9,24 @@
 
 #import <Foundation/Foundation.h>
 
-#import <React/RCTComponent.h>
-#import <React/RCTDefines.h>
-#import <React/RCTViewManager.h>
+#import "RCTComponent.h"
+#import "RCTDefines.h"
 
-@class RCTBridge;
 @class RCTShadowView;
-@class UIView;
+@class RCTViewManager;
 
 @interface RCTComponentData : NSObject
 
-@property (nonatomic, readonly) Class managerClass;
 @property (nonatomic, copy, readonly) NSString *name;
-@property (nonatomic, weak, readonly) RCTViewManager *manager;
+@property (nonatomic, strong, readonly) RCTViewManager *manager;
 
-- (instancetype)initWithManagerClass:(Class)managerClass
-                              bridge:(RCTBridge *)bridge NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithManager:(RCTViewManager *)manager NS_DESIGNATED_INITIALIZER;
 
-- (UIView *)createViewWithTag:(NSNumber *)tag;
+- (id<RCTComponent>)createViewWithTag:(NSNumber *)tag props:(NSDictionary *)props;
 - (RCTShadowView *)createShadowViewWithTag:(NSNumber *)tag;
-- (void)setProps:(NSDictionary<NSString *, id> *)props forView:(id<RCTComponent>)view;
-- (void)setProps:(NSDictionary<NSString *, id> *)props forShadowView:(RCTShadowView *)shadowView;
+- (void)setProps:(NSDictionary *)props forView:(id<RCTComponent>)view;
+- (void)setProps:(NSDictionary *)props forShadowView:(RCTShadowView *)shadowView;
 
-- (NSDictionary<NSString *, id> *)viewConfig;
-
-- (RCTViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, RCTShadowView *> *)registry;
+- (NSDictionary *)viewConfig;
 
 @end

@@ -9,21 +9,15 @@
 
 #import <UIKit/UIKit.h>
 
-#import <React/RCTDefines.h>
-
-#if RCT_DEV
+typedef NS_ENUM(NSUInteger, RCTFPSGraphPosition) {
+  RCTFPSGraphPositionLeft = 1,
+  RCTFPSGraphPositionRight = 2
+};
 
 @interface RCTFPSGraph : UIView
 
-@property (nonatomic, assign, readonly) NSUInteger FPS;
-@property (nonatomic, assign, readonly) NSUInteger maxFPS;
-@property (nonatomic, assign, readonly) NSUInteger minFPS;
-
-- (instancetype)initWithFrame:(CGRect)frame
-                        color:(UIColor *)color NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithFrame:(CGRect)frame graphPosition:(RCTFPSGraphPosition)position name:(NSString *)name color:(UIColor *)color NS_DESIGNATED_INITIALIZER;
 
 - (void)onTick:(NSTimeInterval)timestamp;
 
 @end
-
-#endif
