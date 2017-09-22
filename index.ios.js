@@ -1,8 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
 import React from 'react';
 import { AppRegistry, View } from 'react-native';
 
@@ -13,13 +8,13 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-     isLoading: true
+      isLoading: true
     };
   }
 
   componentDidMount() {
     this.setState({
-     isLoading: false
+      isLoading: false
     });
   }
 

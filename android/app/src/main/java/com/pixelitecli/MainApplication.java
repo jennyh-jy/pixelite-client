@@ -3,6 +3,10 @@ package com.pixelitecli;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.reactnative.photoview.PhotoViewPackage;
+import cl.json.RNSharePackage;
+import com.BV.LinearGradient.LinearGradientPackage;
+import com.devfd.RNGeocoder.RNGeocoderPackage;
 import com.imagepicker.ImagePickerPackage;
 import com.mybigday.rnmediameta.RNMediaMetaPackage;
 import com.devialab.exif.RCTExifPackage;
@@ -29,6 +33,10 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new PhotoViewPackage(),
+            new RNSharePackage(),
+            new LinearGradientPackage(),
+            new RNGeocoderPackage(),
             new ImagePickerPackage(),
             new RNMediaMetaPackage(),
             new RCTExifPackage(),
