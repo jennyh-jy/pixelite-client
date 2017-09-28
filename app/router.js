@@ -1,14 +1,13 @@
+/* eslint-disable */
 import React from "react";
 import { Platform, StatusBar } from "react-native";
 import { StackNavigator, TabNavigator } from "react-navigation";
 import { Icon } from 'react-native-elements'
-// import { SimpleLineIcons } from "react-native-vector-icons";
 
 import Home from "./screens/Home";
 import NewStory from "./screens/NewStory";
 import Profile from "./screens/Profile";
 import Login from "./screens/Login";
-
 
 const headerStyle = {
   marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
@@ -50,13 +49,25 @@ export const Tabs = TabNavigator({
   }
 });
 
+// export const SearchPlacesStack = StackNavigator({
+//   SearchPlaces: {
+//     screen: SearchPlaces,
+//   },
+// });
 
 export const CreateRootNavigator = StackNavigator({
   LoggedIn: {
     screen: Tabs,
   },
+  // SearchPlaces: {
+  //   screen: SearchPlacesStack,
+  //   navigationOptions: {
+  //     title: 'Search Places',
+  //   }
+  // }
 }, {
-  headerMode: "none",
+  headerMode: 'none',
+  mode: 'modal',
 });
 
 

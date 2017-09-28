@@ -79,7 +79,7 @@ export default class Profile extends React.Component {
   }
 
   renderRow(images) {
-    return images.map((uri, i) =>{
+    return images.map((uri, i) => {
       return(
         <Image key={i} style={[{margin: 0}, this.calculatedSize(images.length)]} source={uri} />
       );
