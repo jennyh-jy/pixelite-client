@@ -1,9 +1,8 @@
+/* eslint-disable */
 import React from "react";
 import { StyleSheet, View, ScrollView, Text, Image, Dimensions, TouchableOpacity } from "react-native";
 import { Icon } from 'react-native-elements'
 import MapView from 'react-native-maps';
-// import { ImagePicker } from 'expo';
-// import * as _ from 'lodash';
 
 // import {styles} from '../styles/styles';
 // import { onSignOut } from "../auth";
@@ -108,19 +107,6 @@ export default class Profile extends React.Component {
       ],
     });
   }
-
-  _pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-    });
-
-    console.log(result);
-
-    if (!result.cancelled) {
-      this.setState({ image: result.uri });
-    }
-  };
 
   render() {
     let { image } = this.state;
@@ -236,23 +222,7 @@ const styles = StyleSheet.create({
     width: 200,
     alignItems: 'stretch',
   },
-  button: {
-    width: 80,
-    paddingHorizontal: 12,
-    alignItems: 'center',
-    marginHorizontal: 10,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    marginVertical: 20,
-    backgroundColor: 'transparent',
-  },
 });
-
-// <MaterialIcons name="add-a-photo" size={40} color="grey" style={{ marginTop: 8 }} onPress={this._pickImage}/>
-// {image &&
-// <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
-
 
 
 // <Card title="John Doe">

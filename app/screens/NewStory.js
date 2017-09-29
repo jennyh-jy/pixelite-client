@@ -8,6 +8,7 @@ import ParallaxScrollView from 'react-native-parallax-scroll-view';
 
 import { GOOGLE_GEOCODING_API_KEY, GOOGLE_PLACES_API_KEY } from '../../apis';
 import PhotoGrid from '../components/PhotoGrid';
+import StoryMapModal from '../components/StoryMapModal';
 import FloatingLabelInput from '../components/FloatingLabelInput';
 
 const ImagePicker = NativeModules.ImageCropPicker;
@@ -83,59 +84,28 @@ export default class NewStory extends Component {
     this.state = {
       isTextEditable: false,
       arePhotosSelected: false,
+      isStoryMapClicked: false,
       titleValue: '',
       textValue: '',
       selectedPhotos: {},
       selectedCity: null,
       selectedCountry: null,
+      selectedCoordinates: null,
+      locations: [],
       travelPeriod: null,
       thumbnailUrl: 'http://travel.home.sndimg.com/content/dam/images/travel/fullset/2014/12/3/top-10-caribbean-beaches-eagle-beach-aruba.jpg.rend.hgtvcom.966.725.suffix/1491584555480.jpeg',
-      locations: [],
     };
   }
 
-  updateLocation(place, photoUrl) {
-    const {coordinates, placeName} = place;
-    const selectedPhotos = {...this.state.selectedPhotos};
-    const newLocations = [...this.state.locations, place];
-    const newSelectedPhotos = {};
-
-    for (let date in selectedPhotos) {
-      const updates =
-        selectedPhotos[date].map(photo => {
-        return photo.url === photoUrl
-          ? {
-            ...photo,
-            latitude: coordinates.lat,
-            longitude: coordinates.lng,
-            locationName: placeName,
-          }
-          : photo;
-      })
-      newSelectedPhotos[date] = updates;
-    }
-    this.setState({
-      selectedPhotos: newSelectedPhotos,
-      locations: newLocations,
-    });
-  }
+  formattedDate(timestamp) {
+    const day = timestamp.getDate().toString();
+    const month = timestamp.toString().split(' ')[1];
+    const year = timestamp.getFullYear().toString();
+    return `${day} ${month} ${year}`;
+  };
 
   compareDates(dates) {
-    this.month = ['Jan', 'Feb', 'Mar', 'Apr', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-    return dates.sort((a, b) => {
-      const first = a.split(' ').map((element, i) => { if (i === 0 || i === 2) return Number(element); return element; });
-      const second = b.split(' ').map((element, i) => { if (i === 0 || i === 2) return Number(element); return element; });
-      if (first[2] > second[2]) {
-        return first[2] - second[2] > 0;
-      } else if (first[2] === second[2]) {
-        if (first[1] === second[1]) {
-          return first[0] - second[0] > 0;
-        }
-        return this.month.indexOf(first[1]) - this.month.indexOf(second[1]) > 0;
-      }
-      return a - b < 0;
-    });
+    return dates.sort((a, b) => new Date(a) > new Date(b));
   }
 
   getTravelPeriod(dates) {
@@ -145,7 +115,7 @@ export default class NewStory extends Component {
       const early = dates[0].split(' ').map((element, i) => { if (i === 0 || i === 2) return Number(element); return element; });
       const late = dates[dates.length - 1].split(' ').map((element, i) => { if (i === 0 || i === 2) return Number(element); return element; });
 
-      if(early[2] === late[2] && early[1] === late[1]) {
+      if (early[2] === late[2] && early[1] === late[1]) {
         return `${early[0]} - ${late[0]} ${late[1]} ${late[2]}`;
       } else if( early[2] === late[2]) {
         return `${early[0]} ${early[1]} - ${late[0]} ${late[1]} ${late[2]}`;
@@ -155,39 +125,88 @@ export default class NewStory extends Component {
     }
   }
 
+  updateLocation(place, photoUrl) {
+    const {placeName, coordinates} = place;
+    const selectedPhotos = {...this.state.selectedPhotos};
+    const newSelectedPhotos = {};
+    const newLocation = {
+      placeName: placeName,
+      coordinates: {
+        latitude: coordinates.lat,
+        longitude: coordinates.lng,
+      }
+    }
+
+    for (let date in selectedPhotos) {
+      const updates =
+        selectedPhotos[date].map(photo => {
+        return photo.url === photoUrl
+          ? {
+            ...photo,
+            location: newLocation,
+          } : photo;
+      })
+      newSelectedPhotos[date] = updates;
+    }
+
+    const newLocations = [...this.state.locations, newLocation];
+
+    this.setState({
+      selectedPhotos: newSelectedPhotos,
+      locations: newLocations,
+    });
+  }
+
   deletePhoto(photoUrl) {
     const updatedSelectedPhotos = Object.assign({}, this.state.selectedPhotos);
-    if (Object.keys(this.state.selectedPhotos).length === 1 && this.state.selectedPhotos[Object.keys(this.state.selectedPhotos)[0]].length === 1) {
-      console.log('Cannot delete photo - you should have at least one photo in your story');
-      // Alert.alert(
-      //   'Cannot delete photo',
-      //   'You should have at least one photo in your story',
-      //   [
-      //     { text: 'OK', onPress: () => console.log('OK Pressed')}
-      //   ]
-      // );
+    const dates = Object.keys(updatedSelectedPhotos);
+    const allEachPhotos = Object.values(updatedSelectedPhotos);
+    if (dates.length === 1 && allEachPhotos[0].length === 1) {
+      Alert.alert(
+        'Cannot delete photo',
+        'You should have at least one photo in your story',
+        [
+          { text: 'OK', onPress: () => console.log('OK Pressed')}
+        ]
+      );
+      return false;
     } else {
-      for (let date in updatedSelectedPhotos) {
-        for (let i = 0; i < updatedSelectedPhotos[date].length; i++) {
-          if (updatedSelectedPhotos[date][i].url === photoUrl) {
-            if (updatedSelectedPhotos[date].length === 1) {
-              delete updatedSelectedPhotos[date];
-              console.log('date deleted!');
-              break;
-            }
-            updatedSelectedPhotos[date].splice(i, 1);
-            break;
+      let deleteLocation = null;
+      const newLocations = [...this.state.locations];
+      allEachPhotos.forEach((eachPhotos, index) => {
+        const foundPhotoIndex = eachPhotos.findIndex((photo) => photo.url === photoUrl);
+        if (foundPhotoIndex !== -1) {
+          if(eachPhotos[foundPhotoIndex].location) deleteLocation = eachPhotos[foundPhotoIndex].location;
+          eachPhotos.splice(foundPhotoIndex, 1);
+          if (!eachPhotos.length) {
+            delete updatedSelectedPhotos[dates[index]];
+            console.log('date deleted!');
           }
         }
+      });
+
+      if (deleteLocation) {
+        this.state.locations.forEach((location, i) => {
+          if (location.placeName === deleteLocation.placeName) {
+            newLocations.splice(i, 1);
+          }
+        })
       }
+
       this.setState({
         selectedPhotos: updatedSelectedPhotos,
         travelPeriod: this.getTravelPeriod(this.compareDates(Object.keys(updatedSelectedPhotos))),
+        locations: newLocations,
       });
+      return true;
     }
   }
 
-  storyToggle() {
+  toggleStoryMap() {
+    this.setState({ isStoryMapClicked: !this.state.isStoryMapClicked });
+  }
+
+  toggleStory() {
     this.setState({ arePhotosSelected: !this.state.arePhotosSelected });
   }
 
@@ -211,29 +230,14 @@ export default class NewStory extends Component {
       console.log(allPhotos);
 
       const redefinedPhotos = selectedPhotos.map((photo) => {
-        const {
-          timestamp,
-          location: {
-            latitude,
-            longitude,
-          },
-        } = allPhotos.find(item => item.node.image.filename === photo.filename).node;
-        const formattedDate = (d) => {
-          const day = d.getDate().toString();
-          const month = d.toString().split(' ')[1];
-          const year = d.getFullYear().toString();
-          return `${day} ${month} ${year}`;
-        };
-
+        const { timestamp } = allPhotos.find(item => item.node.image.filename === photo.filename).node;
         return {
           filename: photo.filename,
           url: photo.path,
           width: photo.width,
           height: photo.height,
-          date: formattedDate(new Date(timestamp * 1000)),
-          latitude,
-          longitude,
-          locationName: null,
+          date: this.formattedDate(new Date(timestamp * 1000)),
+          location: null,
         };
       });
 
@@ -266,15 +270,16 @@ export default class NewStory extends Component {
   }
 
   getThumbnail() {
-    const datesArray = Object.keys(this.state.selectedPhotos);
-    const randomDateIndex = Math.floor(Math.random() * datesArray.length);
-    const randomPhoto = this.state.selectedPhotos[datesArray[randomDateIndex]][Math.floor(Math.random() * this.state.selectedPhotos[datesArray[randomDateIndex]].length)];
+    const dates = Object.keys(this.state.selectedPhotos);
+    const randomDateIndex = Math.floor(Math.random() * dates.length);
+    const randomPhoto = this.state.selectedPhotos[dates[randomDateIndex]][Math.floor(Math.random() * this.state.selectedPhotos[dates[randomDateIndex]].length)];
     this.setState({ thumbnailUrl: randomPhoto.url });
   }
 
   render() {
-    console.log(this.state.locations)
-    const { arePhotosSelected, isTextEditable, selectedPhotos, thumbnailUrl, selectedCity, selectedCountry, travelPeriod } = this.state;
+    const { isStoryMapClicked, arePhotosSelected, isTextEditable, selectedPhotos, thumbnailUrl, selectedCity, selectedCountry, travelPeriod } = this.state;
+    console.log(this.state.selectedPhotos)
+
     return (
       <View style={{ flex: 1, paddingTop: 25, backgroundColor: 'white' }}>
         <View style={{ position: 'relative', width: windowWidth, height: 40 }}>
@@ -330,6 +335,10 @@ export default class NewStory extends Component {
               this.setState({
                 selectedCity: data.description.split(', ')[0],
                 selectedCountry: data.description.split(', ')[data.description.split(', ').length - 1],
+                selectedCoordinates: {
+                  latitude: details.geometry.location.lat,
+                  longitude: details.geometry.location.lng,
+                }
               });
             }}
             getDefaultValue={() => {
@@ -388,7 +397,7 @@ export default class NewStory extends Component {
         </View>
 
         <Modal
-          animationType={"fade"}
+          animationType="fade"
           transparent={false}
           onRequestClose={() => { }}
           visible={arePhotosSelected}
@@ -468,6 +477,7 @@ export default class NewStory extends Component {
                     size={18}
                     color="white"
                     iconStyle={{ textAlign: 'center', paddingTop: 11, paddingBottom: 8, paddingHorizontal: 11, borderRadius: 20.5, borderWidth: 1, borderColor: '#b3adad' }}
+                    onPress={() => this.toggleStoryMap()}
                   />
                 </View>
                 <View style={{ alignItems: 'center', marginHorizontal: 7,
@@ -522,7 +532,7 @@ export default class NewStory extends Component {
                     name="arrow-left"
                     color="white"
                     size={26}
-                    onPress={() => {this.storyToggle(); this.setState({ selectedPhotos: {}, textValue: '' })}}
+                    onPress={() => {this.toggleStory(); this.setState({ selectedPhotos: {}, textValue: '' })}}
                   />
                 </View>
                 <View style={{ flex: 1, alignItems: 'flex-end', top: 25, right: 12 }}>
@@ -544,6 +554,18 @@ export default class NewStory extends Component {
               </View>
             )}>
             <View style={{ marginVertical: 20 }}>
+              <Modal
+                animationType="fade"
+                transparent={false}
+                onRequestClose={() => { }}
+                visible={isStoryMapClicked}
+              >
+                <StoryMapModal
+                  toggleStoryMap={this.toggleStoryMap.bind(this)}
+                  locations={this.state.locations}
+                  regionCoordinates={this.state.selectedCoordinates}
+                />
+              </Modal>
               {!isTextEditable
                 ? <View style={{ alignItems: 'center', alignSelf: 'center', width: windowWidth - 50 }}>
                     <Text style={{ color: '#707070', fontFamily: 'AvenirNext-Italic', fontSize: 14, textAlign: 'center' }}>
