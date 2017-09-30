@@ -93,7 +93,7 @@ export default class NewStory extends Component {
       selectedCoordinates: null,
       locations: [],
       travelPeriod: null,
-      thumbnailUrl: 'http://travel.home.sndimg.com/content/dam/images/travel/fullset/2014/12/3/top-10-caribbean-beaches-eagle-beach-aruba.jpg.rend.hgtvcom.966.725.suffix/1491584555480.jpeg',
+      coverPhotoUrl: 'http://travel.home.sndimg.com/content/dam/images/travel/fullset/2014/12/3/top-10-caribbean-beaches-eagle-beach-aruba.jpg.rend.hgtvcom.966.725.suffix/1491584555480.jpeg',
     };
   }
 
@@ -265,20 +265,24 @@ export default class NewStory extends Component {
           travelPeriod: this.getTravelPeriod(this.compareDates(Object.keys(nextSelectedPhotos))),
         });
       }
-    }).then(() => this.getThumbnail())
+    }).then(() => this.getInitialCoverPhoto())
     .catch(err => console.log(err));
   }
 
-  getThumbnail() {
+  getInitialCoverPhoto() {
     const dates = Object.keys(this.state.selectedPhotos);
     const randomDateIndex = Math.floor(Math.random() * dates.length);
     const randomPhoto = this.state.selectedPhotos[dates[randomDateIndex]][Math.floor(Math.random() * this.state.selectedPhotos[dates[randomDateIndex]].length)];
-    this.setState({ thumbnailUrl: randomPhoto.url });
+    this.setState({ coverPhotoUrl: randomPhoto.url });
+  }
+
+  changeCoverPhoto(photoUrl) {
+    this.setState({ coverPhotoUrl: photoUrl })
   }
 
   render() {
-    const { isStoryMapClicked, arePhotosSelected, isTextEditable, selectedPhotos, thumbnailUrl, selectedCity, selectedCountry, travelPeriod } = this.state;
-    console.log(this.state.selectedPhotos)
+    const { isStoryMapClicked, arePhotosSelected, isTextEditable, selectedPhotos, coverPhotoUrl, selectedCity, selectedCountry, travelPeriod } = this.state;
+    console.log(this.state.selectedPhotos);
 
     return (
       <View style={{ flex: 1, paddingTop: 25, backgroundColor: 'white' }}>
@@ -410,7 +414,7 @@ export default class NewStory extends Component {
             renderBackground={() => (
               <View key="background">
                 <ImageBackground
-                  source={{uri: thumbnailUrl }}
+                  source={{ uri: coverPhotoUrl }}
                   style={{ width: windowWidth, height: 350, zIndex: -1}}
                 >
                   <View style={{position: 'absolute',
@@ -523,16 +527,13 @@ export default class NewStory extends Component {
 
             renderFixedHeader={() => (
               <View style={{ position: 'absolute', top: 0, flexDirection: 'row' }}>
-                <StatusBar
-                  barStyle='light-content'
-                />
                 <View style={{ flex: 1, alignItems: 'flex-start', top: 25, left: 8 }}>
                   <Icon
                     type="material-community"
                     name="arrow-left"
                     color="white"
                     size={26}
-                    onPress={() => {this.toggleStory(); this.setState({ selectedPhotos: {}, textValue: '' })}}
+                    onPress={() => {this.toggleStory(); this.setState({ selectedPhotos: {}, textValue: '', locations: [] })}}
                   />
                 </View>
                 <View style={{ flex: 1, alignItems: 'flex-end', top: 25, right: 12 }}>
@@ -566,6 +567,9 @@ export default class NewStory extends Component {
                   regionCoordinates={this.state.selectedCoordinates}
                 />
               </Modal>
+              <StatusBar
+                barStyle='light-content'
+              />
               {!isTextEditable
                 ? <View style={{ alignItems: 'center', alignSelf: 'center', width: windowWidth - 50 }}>
                     <Text style={{ color: '#707070', fontFamily: 'AvenirNext-Italic', fontSize: 14, textAlign: 'center' }}>
@@ -609,6 +613,7 @@ export default class NewStory extends Component {
                       compareDates={this.compareDates.bind(this)}
                       updateLocation={this.updateLocation.bind(this)}
                       deletePhoto={this.deletePhoto.bind(this)}
+                      changeCoverPhoto={this.changeCoverPhoto.bind(this)}
                       allPhotos={selectedPhotos}
                       photosList={selectedPhotos[date]}
                     />

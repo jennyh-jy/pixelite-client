@@ -75,7 +75,6 @@ export default class PhotoGrid extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log('되나?')
     this.setState({
       allPhotos: this.changeToSlide(nextProps.allPhotos),
     })
@@ -330,16 +329,35 @@ export default class PhotoGrid extends Component {
                   type="material-community"
                   name="close"
                   color="white"
-                  size={26}
+                  size={25}
                   onPress={() => this.photoPopupToggle()}
                 />
               </View>
-              <View style={{ position: 'absolute', alignItems: 'flex-end', top: 9, right: 8, zIndex: 10, width: 38, height: 38 }}>
+              <View style={{ position: 'absolute', alignItems: 'flex-end', top: 10, right: 45, zIndex: 10, width: 38, height: 38 }}>
+                <Icon
+                  type="simple-line-icon"
+                  name="notebook"
+                  color="white"
+                  size={22}
+                  onPress={() => Alert.alert(
+                    'Change story cover',
+                    'Do you want to change your story cover to this photo?',
+                    [{
+                      text: 'Nah',
+                      onPress: () => console.log('Cancel Pressed'), style: 'cancel'
+                    }, {
+                      text: 'Yes',
+                      onPress: () => this.props.changeCoverPhoto(this.state.currentPhotoUrl)
+                    }]
+                  )}
+                />
+              </View>
+              <View style={{ position: 'absolute', alignItems: 'flex-end', top: 9, right: 10, zIndex: 10, width: 38, height: 38 }}>
                 <Icon
                   type="simple-line-icon"
                   name="trash"
                   color="white"
-                  size={24}
+                  size={23}
                   onPress={() => Alert.alert(
                     'Delete photo',
                     'Are you sure you want to delete this photo?',

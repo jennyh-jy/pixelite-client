@@ -1,13 +1,13 @@
 /* eslint-disable */
 import React from 'react';
-import { Text, View, Dimensions, StyleSheet } from 'react-native';
+import { Text, View, Dimensions, StyleSheet,StatusBar } from 'react-native';
 import { Icon } from 'react-native-elements';
 import MapView from 'react-native-maps';
 
 const { width, height } = Dimensions.get('window');
 
 const ASPECT_RATIO = width / height;
-const LATITUDE_DELTA = 0.5;
+const LATITUDE_DELTA = 0.3;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 export default class StoryMapModal extends React.Component {
@@ -25,7 +25,6 @@ export default class StoryMapModal extends React.Component {
 
   // componentWillReceiveProps(nextProps) {
   //   console.log(nextProps);
-  //   console.log("dddd")
   //   this.setState({
   //     markers: nextProps.locations,
   //   })
@@ -39,7 +38,10 @@ export default class StoryMapModal extends React.Component {
     console.log(this.state.markers);
     return (
       <View style={{ flex: 1 }}>
-        <View style={{ position: 'absolute', alignItems: 'flex-start', top: 25, left: 10, width: 35, height: 35, zIndex: 10 }}>
+        <StatusBar
+          hidden={true}
+        />
+        <View style={{ position: 'absolute', alignItems: 'flex-start', top: 8, left: 8, width: 35, height: 35, zIndex: 10 }}>
           <Icon
             type="material-community"
             name="close"

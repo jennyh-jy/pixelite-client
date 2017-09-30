@@ -7,34 +7,7 @@ import MapView from 'react-native-maps';
 // import {styles} from '../styles/styles';
 // import { onSignOut } from "../auth";
 
-const IMAGE_URLS = [
-  {uri: "https://s3.us-east-2.amazonaws.com/coderaising-cs/38824_1.jpg"},
-  // {uri: "https://forums.imore.com/attachments/photography-videography/66363d1411762006t-show-us-some-photos-taken-iphone-6-imageuploadedbyimore-forums1411762005.474797.jpg"},
-  // {uri: "https://forums.imore.com/attachments/iphone-6/66677d1411955559t-post-pictures-video-taken-your-iphone-6-imageuploadedbyimore-forums1411955558.906521.jpg"},
-  {uri: "https://forums.imore.com/attachments/photography-videography/66363d1411762006t-show-us-some-photos-taken-iphone-6-imageuploadedbyimore-forums1411762005.474797.jpg"},
-  // {uri: "http://lorempixel.com/400/400/business"},
-  {uri: "http://lorempixel.com/400/400/food"},
-  {uri: "http://lorempixel.com/400/400/nightlife"},
-  {uri: "http://lorempixel.com/400/400/people"},
-  // {uri: "http://lorempixel.com/400/400/technics"},
-  // {uri: "http://lorempixel.com/400/400/transport"},
-  // {uri: "http://lorempixel.com/400/400/sports"},
-  {uri: "http://lorempixel.com/400/400/fashion"},
-  {uri: "http://lorempixel.com/400/400/city"},
-];
-
 const { width, height } = Dimensions.get('window');
-
-const ASPECT_RATIO = width / height;
-const LATITUDE = 0;
-const LONGITUDE = 126.9780;
-const LATITUDE_DELTA = 120;
-const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
-let id = 0;
-
-function randomColor() {
-  return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-}
 
 const windowWidth = Dimensions.get('window').width - 36;
 var IMAGES_PER_ROW = 4;
@@ -43,13 +16,6 @@ export default class Profile extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      region: {
-        latitude: LATITUDE,
-        longitude: LONGITUDE,
-        latitudeDelta: LATITUDE_DELTA,
-        longitudeDelta: LONGITUDE_DELTA,
-      },
-      markers: [],
       image: null
     };
   }
@@ -93,19 +59,6 @@ export default class Profile extends React.Component {
         </View>
       )
     })
-  }
-
-  onMapPress(e) {
-    this.setState({
-      markers: [
-        ...this.state.markers,
-        {
-          coordinate: e.nativeEvent.coordinate,
-          key: id++,
-          color: randomColor(),
-        },
-      ],
-    });
   }
 
   render() {
