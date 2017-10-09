@@ -8,6 +8,7 @@ import Home from "./screens/Home";
 import NewStory from "./screens/NewStory";
 import Profile from "./screens/Profile";
 import Login from "./screens/Login";
+import SearchStoryModal from "./components/SearchStoryModal";
 
 const headerStyle = {
   marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
@@ -23,10 +24,13 @@ export const Tabs = TabNavigator({
   },
   NewStory: {
     screen: NewStory,
-    navigationOptions: {
+    navigationOptions: ({ navigation }) => ({
       tabBarLabel: 'NEW STORY',
-      tabBarIcon: ({ tintColor }) => <Icon type='simple-line-icon' name='plus' color={tintColor} size={21} />
-    },
+      tabBarIcon: ({ tintColor }) => <Icon type='simple-line-icon' name='plus' color={tintColor} size={21} />,
+      tabBarOnPress: (tab, jumpToIndex) => {
+        navigation.navigate('NewStoryModal');
+      },
+    }),
   },
   Profile: {
     screen: Profile,
@@ -49,22 +53,16 @@ export const Tabs = TabNavigator({
   }
 });
 
-// export const SearchPlacesStack = StackNavigator({
-//   SearchPlaces: {
-//     screen: SearchPlaces,
-//   },
-// });
-
 export const CreateRootNavigator = StackNavigator({
   LoggedIn: {
     screen: Tabs,
   },
-  // SearchPlaces: {
-  //   screen: SearchPlacesStack,
-  //   navigationOptions: {
-  //     title: 'Search Places',
-  //   }
-  // }
+  NewStoryModal: {
+    screen: NewStory,
+  },
+  SearchStoryModal: {
+    screen: SearchStoryModal,
+  }
 }, {
   headerMode: 'none',
   mode: 'modal',

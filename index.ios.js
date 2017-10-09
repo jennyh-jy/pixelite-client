@@ -1,7 +1,8 @@
 import React from 'react';
 import { AppRegistry, View } from 'react-native';
 
-import { CreateRootNavigator } from "./app/router";
+import { CreateRootNavigator } from './app/router';
+import Login from './app/screens/Login';
 
 
 export default class App extends React.Component {
@@ -19,9 +20,9 @@ export default class App extends React.Component {
   }
 
   render() {
-    if (this.state.isLoading) {
-      return (<View></View>);
-    }
+    // if (this.state.isLoading) {
+    //   return <Login />;
+    // }
     return <CreateRootNavigator />; // login 기능 구현한 다음에 수정
   }
 }

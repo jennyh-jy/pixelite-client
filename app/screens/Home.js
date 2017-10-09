@@ -1,356 +1,558 @@
 /* eslint-disable */
-import React, { Component } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  Animated,
-  Image,
-  Dimensions,
-} from "react-native";
-import MapView from 'react-native-maps';
+import React from "react";
+import { StyleSheet, Text, View, ScrollView, Button, Image, ImageBackground, FlatList, Dimensions, TouchableOpacity } from 'react-native';
+import { Icon, SearchBar, Divider } from "react-native-elements";
+import axios from 'react-native-axios';
 
+const sampleStories = [{
+  title: "Backpacking in Straya",
+  city: "Melbourne",
+  country: "Australia",
+  coordinates: {
+    latitude: -37.81361100000001,
+    longitude: 144.963056,
+  },
+  travelPeriod: "20-27 Dec 2016",
+  coverPhotoUrl: "https://www.realestate.com.au/neighbourhoods/content/suburb/editorial/vic/melbourne-3000/intro01-2.jpg",
+  items: [{
+    date: "19 Dec 2016",
+    filename: "IMG_0026.JPG",
+    url: "https://s3.us-east-2.amazonaws.com/pixelite-s3/uploads/BD53A516-B9DD-420D-AED7-DE78C4FA8B20.jpg",
+    width: 2448,
+    height: 3264,
+    location: {
+      placeName: "St Kilda beach, Melbourne, Victoria, Australia",
+      coordinates: {
+        latitude: -37.8678765,
+        longitude: 144.9740049,
+      },
+    },
+    tags: ["beach", "tree"],
+  }, {
+    date: "6 Jul 2017",
+    filename: "IMG_0024.JPG",
+    url: "https://s3.us-east-2.amazonaws.com/pixelite-s3/uploads/A08822CD-3943-437C-AC60-176884F76DEB.jpg",
+    width: 3024,
+    height: 3024,
+    location: {
+      placeName: "Chin Chin, Flinders Lane, Melbourne, Victoria, Australia",
+      coordinates: {
+        latitude: -37.815614,
+        longitude: 144.970377,
+      },
+    },
+    tags: ["bar", "food"],
+  }],
+}, {
+  title: "Japan with besties",
+  city: "Tokyo",
+  country: "Japan",
+  coordinates: {
+    latitude: 35.7090259,
+    longitude: 139.7319925,
+  },
+  travelPeriod: "30 Jul - 15 Aug 2017",
+  coverPhotoUrl: "https://shoutem.github.io/static/getting-started/restaurant-3.jpg",
+}, {
+  title: "First time in Spain",
+  city: "Madrid",
+  country: "Spain",
+  coordinates: {
+    latitude: 40.4167754,
+    longitude: -3.7037902,
+  },
+  travelPeriod: "15-28 Jan 2016",
+  coverPhotoUrl: "https://www.amawaterways.com/Assets/CruiseGallery/Large/provencespain_barcelona_parcguell_ss_407568172_gallery.jpg",
+}, {
+  title: "Honeymoon in Africa",
+  city: "Cape Town",
+  country: "South Africa",
+  coordinates: {
+    latitude: -33.9248685,
+    longitude: 18.4240553,
+  },
+  travelPeriod: "24-30 Sep 2013",
+  coverPhotoUrl: "https://images.fineartamerica.com/images-medium-large/lions-head-sunset-johaar-bassier.jpg",
+}, {
+  title: "Hola como estas",
+  city: "Rio de Janeiro",
+  country: "Brazil",
+  coordinates: {
+    latitude: -22.9068467,
+    longitude: -43.17289650000001,
+  },
+  travelPeriod: "2 Feb - 4 Mar 2014",
+  coverPhotoUrl: "https://cache-graphicslib.viator.com/graphicslib/thumbs360x240/2484/SITours/corcovado-mountain-and-christ-redeemer-statue-half-day-tour-in-rio-de-janeiro-128058.jpg",
+}, {
+  title: "Back home",
+  city: "Seoul",
+  country: "South Korea",
+  coordinates: {
+    latitude: 37.566535,
+    longitude: 126.9779692,
+  },
+  travelPeriod: "17 Jul - 14 Oct 2017",
+  coverPhotoUrl: "https://upload.wikimedia.org/wikipedia/commons/8/8f/Seoul-Namdaemun-at.night-02.jpg",
+}];
 
-const Images = [
-  { uri: "https://i.imgur.com/sNam9iJ.jpg" },
-  { uri: "https://i.imgur.com/N7rlQYt.jpg" },
-  { uri: "https://i.imgur.com/UDrH0wm.jpg" },
-  { uri: "https://i.imgur.com/Ka8kNST.jpg" }
-]
+const sampleKeywords = [{
+  keyword: "Hiking",
+  imgUrl: "https://media.deseretdigital.com/file/3ae0ba3723?type=jpeg&quality=55&c=15&a=4379240d",
+}, {
+  keyword: "Paragliding",
+  imgUrl: "https://s3.us-east-2.amazonaws.com/pixelite-s3/Paragliding.png",
+}, {
+  keyword: "Mountain Biking",
+  imgUrl: "https://coresites-cdn.factorymedia.com/dirt_new/wp-content/uploads/2016/12/Bikes-2.jpg",
+}, {
+  keyword: "Surfing",
+  imgUrl: "https://s3.us-east-2.amazonaws.com/pixelite-s3/Surfing.png",
+}, {
+  keyword: "Beach",
+  imgUrl: "https://s3.us-east-2.amazonaws.com/pixelite-s3/beach.jpeg",
+}, {
+  keyword: "Spa",
+  imgUrl: "https://static1.squarespace.com/static/537e219be4b09a8e64d98900/54337e7fe4b0b2ef9c4fc56e/54377983e4b0e78dea9153e3/1412921745441/image+4.jpg?format=500w",
+}, {
+  keyword: "Bar",
+  imgUrl: "https://s3.us-east-2.amazonaws.com/pixelite-s3/bar1.png",
+}];
 
-const { width, height } = Dimensions.get("window");
+const sampleLocations = [{
+  location: "Sydney",
+  imgUrl: "https://s3.us-east-2.amazonaws.com/pixelite-s3/Sydney.png",
+}, {
+  location: "London",
+  imgUrl: "https://i.pinimg.com/originals/2c/3e/30/2c3e3003fe88674494d275cceb924b1e.jpg",
+}, {
+  location: "New York",
+  imgUrl: "https://s3.us-east-2.amazonaws.com/pixelite-s3/New+York.png",
+}, {
+  location: "Tokyo",
+  imgUrl: "https://i.pinimg.com/474x/9a/27/97/9a279707fc54fdb714cf95d8acc59eba--places-to-go-best-places-to-visit.jpg",
+}, {
+  location: "Maldives",
+  imgUrl: "https://s3.us-east-2.amazonaws.com/pixelite-s3/Maldives.jpg",
+}, {
+  location: "India",
+  imgUrl: "https://s3.us-east-2.amazonaws.com/pixelite-s3/India.png",
+}, {
+  location: "Turkey",
+  imgUrl: "https://s3.us-east-2.amazonaws.com/pixelite-s3/Turkey+air+balloons.jpg",
+}];
 
-const CARD_HEIGHT = height / 4;
-const CARD_WIDTH = CARD_HEIGHT - 50;
+const windowWidth = Dimensions.get('window').width;
 
-export default class screens extends Component {
+export default class Home extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      markers: [
-        {
-          coordinate: {
-            latitude: 37.50094666666666,
-            longitude: 127.0288778333333,
-          },
-          title: "Best Place",
-          description: "This is the best place in Portland",
-          image: Images[0],
-        },
-        {
-          coordinate: {
-            latitude: 45.524698,
-            longitude: -122.6655507,
-          },
-          title: "Second Best Place",
-          description: "This is the second best place in Portland",
-          image: Images[1],
-        },
-        {
-          coordinate: {
-            latitude: 45.5230786,
-            longitude: -122.6701034,
-          },
-          title: "Third Best Place",
-          description: "This is the third best place in Portland",
-          image: Images[2],
-        },
-        {
-          coordinate: {
-            latitude: 45.521016,
-            longitude: -122.6561917,
-          },
-          title: "Fourth Best Place",
-          description: "This is the fourth best place in Portland",
-          image: Images[3],
-        },
-      ],
-      region: {
-        // latitude: 45.52220671242907,
-        // longitude: -122.6653281029795,
-        latitudeDelta: 0.04864195044303443,
-        longitudeDelta: 0.040142817690068,
-      },
-    };
+      stories: sampleStories,
+      keywords: sampleKeywords,
+      locations: sampleLocations,
+      locationValue: '',
+      tagValue: '',
+    }
   }
 
-  componentWillMount() {
-    this.index = 0;
-    this.animation = new Animated.Value(0);
-  }
-  componentDidMount() {
-    // We should detect when scrolling has stopped then animate
-    // We should just debounce the event listener here
-    this.animation.addListener(({ value }) => {
-      let index = Math.floor(value / CARD_WIDTH + 0.3); // animate 30% away from landing on the next item
-      if (index >= this.state.markers.length) {
-        index = this.state.markers.length - 1;
-      }
-      if (index <= 0) {
-        index = 0;
-      }
+  // searchText() {
+    // axios.post('http://localhost:5000/searchText', this.state.text)
+    // .then(res => console.log(res))
+    // .catch(err => console.log(err))
+    //
+    // fetch('http://localhost:5000/searchText', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Accept': 'application/json',
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({ text: this.props.searchText }),
+    // }).then(res =>
+    //   this.props.showSearchedStories(JSON.parse(res._bodyText))
+    // );
 
-      clearTimeout(this.regionTimeout);
-      this.regionTimeout = setTimeout(() => {
-        if (this.index !== index) {
-          this.index = index;
-          const { coordinate } = this.state.markers[index];
-          this.map.animateToRegion(
-            {
-              ...coordinate,
-              latitudeDelta: this.state.region.latitudeDelta,
-              longitudeDelta: this.state.region.longitudeDelta,
-            },
-            350
-          );
-        }
-      }, 10);
-    });
+    // this.search.clearText()
+  // }
+
+  returnData(location, tag) {
+    this.setState({ locationValue: location, tagValue: tag });
+  }
+
+  clearSearchResults() {
+    this.setState({ locationValue: '', tagValue: '' });
+  }
+
+  toggleSearchModal() {
+    this.props.navigation.navigate('SearchStoryModal', {returnData: this.returnData.bind(this)});
   }
 
   render() {
-    const interpolations = this.state.markers.map((marker, index) => {
-      const inputRange = [
-        (index - 1) * CARD_WIDTH,
-        index * CARD_WIDTH,
-        ((index + 1) * CARD_WIDTH),
-      ];
-      const scale = this.animation.interpolate({
-        inputRange,
-        outputRange: [1, 2.5, 1],
-        extrapolate: "clamp",
-      });
-      const opacity = this.animation.interpolate({
-        inputRange,
-        outputRange: [0.35, 1, 0.35],
-        extrapolate: "clamp",
-      });
-      return { scale, opacity };
-    });
-
+    const { locationValue, tagValue } = this.state;
+    console.log('location:', this.state.locationValue);
+    console.log('tag:', this.state.tagValue);
     return (
-      <View style={styles.container}>
-        <MapView
-          ref={map => this.map = map}
-          // initialRegion={this.state.region}
-          style={styles.container}
-        >
-          {this.state.markers.map((marker, index) => {
-            const scaleStyle = {
-              transform: [
-                {
-                  scale: interpolations[index].scale,
-                },
-              ],
-            };
-            const opacityStyle = {
-              opacity: interpolations[index].opacity,
-            };
-            return (
-              <MapView.Marker key={index} coordinate={marker.coordinate}>
-                <Animated.View style={[styles.markerWrap, opacityStyle]}>
-                  <Animated.View style={[styles.ring, scaleStyle]} />
-                  <View style={styles.marker} />
-                </Animated.View>
-              </MapView.Marker>
-            );
-          })}
-        </MapView>
-        <Animated.ScrollView
-          horizontal
-          scrollEventThrottle={1}
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={CARD_WIDTH}
-          onScroll={Animated.event(
-            [
-              {
-                nativeEvent: {
-                  contentOffset: {
-                    x: this.animation,
-                  },
-                },
-              },
-            ],
-            { useNativeDriver: true }
-          )}
-          style={styles.scrollView}
-          contentContainerStyle={styles.endPadding}
-        >
-          {this.state.markers.map((marker, index) => (
-            <View style={styles.card} key={index}>
-              <Image
-                source={marker.image}
-                style={styles.cardImage}
-                resizeMode="cover"
-              />
-              <View style={styles.textContent}>
-                <Text numberOfLines={1} style={styles.cardtitle}>{marker.title}</Text>
-                <Text numberOfLines={1} style={styles.cardDescription}>
-                  {marker.description}
+      <View style={{ flex: 1, backgroundColor: 'white' }}>
+        <View style={{ paddingTop: 22 }}>
+        {locationValue !== '' || tagValue !== ''
+          ?
+          <View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
+              <View style={{ position: 'absolute', left: 8, justifyContent: 'center', alignItems: 'flex-start', width: 30, height: 30, zIndex: 10 }}>
+                <Icon
+                  type="simple-line-icon"
+                  name="arrow-left"
+                  color="#373535"
+                  size={24}
+                  onPress={() => this.clearSearchResults()}
+                />
+              </View>
+              <Text style={{ fontFamily: 'Avenir', fontSize: 20, color: '#373535', fontWeight: 'bold', marginLeft: 45 }}>
+                Stories about...
+              </Text>
+            </View>
+            <View style={{ marginLeft: 30, marginTop: 15, marginBottom: 15 }}>
+            {locationValue !== ''
+              ?
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                <Icon
+                  type="simple-line-icon"
+                  name="location-pin"
+                  color="#757373"
+                  size={22}
+                />
+                <Text style={{
+                  fontFamily: 'Avenir', fontSize: 14, color: '#757373', marginLeft: 12
+                }}>
+                  {locationValue}
                 </Text>
               </View>
+              : null}
+
+            {tagValue !== ''
+              ?
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
+                <Icon
+                  type="simple-line-icon"
+                  name="picture"
+                  color="#757373"
+                  size={22}
+                />
+                <Text style={{
+                  fontFamily: 'Avenir', fontSize: 14, color: '#757373', marginLeft: 13
+                }}>
+                  {tagValue}
+                </Text>
+              </View>
+              : null}
             </View>
-          ))}
-        </Animated.ScrollView>
+          </View>
+          :
+          <SearchBar
+            lightTheme
+            round
+            containerStyle={{ backgroundColor: 'white', borderTopWidth: 0, borderBottomWidth: 0, zIndex: 1 }}
+            inputStyle={{ height: 33, borderRadius: 16.5, backgroundColor: 'white', borderWidth: 1, borderColor: '#b5b5b5', fontFamily: 'Avenir', fontSize: 15, color: 'black' }}
+            placeholder='Search stories'
+            placeholderTextColor='#A8A8A8'
+            onFocus={() => this.toggleSearchModal()}
+            // onSubmitEditing={this.searchText.bind(this)}
+          />
+        }
+        </View>
+
+        <ScrollView>
+        {locationValue !== '' || tagValue !== ''
+          ? // search results
+          <View>
+            <FlatList
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(item, index) => index}
+              data={this.state.stories}
+              renderItem={({ item }) => {
+                return (
+                  <ImageBackground
+                    style={{ marginTop: windowWidth * 0.03, marginHorizontal: windowWidth * 0.03, width: windowWidth * 0.94, height: 150, zIndex: -1}}
+                    source={{uri: item.coverPhotoUrl}}
+                  >
+                    <View style={{width: windowWidth * 0.94, height: 150, backgroundColor: 'rgba(0,0,0,.4)', zIndex: 1}}/>
+                    <View style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      paddingTop: 15,
+                      paddingHorizontal: 10,
+                      backgroundColor: 'transparent',
+                      alignItems: 'flex-start',
+                      width: windowWidth * 0.94,
+                      height: 150,
+                      flexDirection: 'column',
+                      zIndex: 5
+                    }}>
+                      <Text style={{
+                        color: 'white',
+                        fontSize: 10,
+                        fontWeight: 'bold',
+                        fontFamily: 'Avenir',
+                        backgroundColor: 'transparent',
+                      }}>
+                        {item.city === item.country
+                          ? item.city.toUpperCase()
+                          : item.city.toUpperCase().concat(', ').concat(item.country.toUpperCase())}
+                      </Text>
+                      <Text style={{
+                        position: 'absolute',
+                        bottom: 32,
+                        left: 10,
+                        color: 'white',
+                        fontSize: 16,
+                        fontWeight: 'bold',
+                        fontFamily: 'Avenir',
+                        backgroundColor: 'transparent',
+                        textAlign: 'left',
+                        flexWrap: 'wrap'
+                      }}>
+                        {item.title.toUpperCase()}
+                      </Text>
+                      <Divider style={{ width: 20, height: 1, marginTop: 3, marginLeft: 1, backgroundColor: 'white' }} />
+                      <Text style={{
+                        position: 'absolute',
+                        bottom: 12,
+                        left: 10,
+                        color: 'white',
+                        fontSize: 11,
+                        fontFamily: 'AvenirNext-Italic',
+                        backgroundColor: 'transparent',
+                      }}>
+                        {item.travelPeriod}
+                      </Text>
+                    </View>
+                  </ImageBackground>
+                );
+              }}
+            />
+          </View>
+          : // default page
+          <View style={{ marginBottom: 30 }}>
+            <View>
+              <View style={{ marginLeft: 15, marginTop: 15, marginBottom: 10 }}>
+                <Text style={{ fontFamily: 'Avenir', fontSize: 18, color: '#373535', fontWeight: 'bold' }}>
+                  Stories for you
+                </Text>
+                <Text style={{
+                  fontFamily: 'Avenir', fontSize: 14, color: '#757373'
+                }}>
+                  Because you searched for Skydiving
+                </Text>
+              </View>
+              <View style={{ marginHorizontal: 10, marginBottom: 10 }}>
+                <FlatList
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  keyExtractor={(item, index) => index}
+                  data={this.state.stories}
+                  renderItem={({ item }) => {
+                    return (
+                      <ImageBackground
+                        style={{ marginHorizontal: windowWidth * 0.015, width: windowWidth * 0.455, height: 150, zIndex: -1}}
+                        source={{uri: item.coverPhotoUrl}}
+                      >
+                        <View style={{width: windowWidth * 0.455, height: 150, backgroundColor: 'rgba(0,0,0,.4)', zIndex: 1}}/>
+                        <View style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          paddingTop: 15,
+                          paddingHorizontal: 10,
+                          backgroundColor: 'transparent',
+                          alignItems: 'flex-start',
+                          width: windowWidth * 0.455,
+                          height: 150,
+                          flexDirection: 'column',
+                          zIndex: 5
+                        }}>
+                          <Text style={{
+                            color: 'white',
+                            fontSize: 10,
+                            fontWeight: 'bold',
+                            fontFamily: 'Avenir',
+                            backgroundColor: 'transparent',
+                          }}>
+                            {item.city === item.country
+                              ? item.city.toUpperCase()
+                              : item.city.toUpperCase().concat(', ').concat(item.country.toUpperCase())}
+                          </Text>
+                          <Text style={{
+                            position: 'absolute',
+                            bottom: 32,
+                            left: 10,
+                            color: 'white',
+                            fontSize: 16,
+                            fontWeight: 'bold',
+                            fontFamily: 'Avenir',
+                            backgroundColor: 'transparent',
+                            textAlign: 'left',
+                            flexWrap: 'wrap'
+                          }}>
+                            {item.title.toUpperCase()}
+                          </Text>
+                          <Divider style={{ width: 20, height: 1, marginTop: 3, marginLeft: 1, backgroundColor: 'white' }} />
+                          <Text style={{
+                            position: 'absolute',
+                            bottom: 12,
+                            left: 10,
+                            color: 'white',
+                            fontSize: 11,
+                            fontFamily: 'AvenirNext-Italic',
+                            backgroundColor: 'transparent',
+                          }}>
+                            {item.travelPeriod}
+                          </Text>
+                        </View>
+                      </ImageBackground>
+                    );
+                  }}
+                />
+              </View>
+
+              <View style={{ marginLeft: 15, marginTop: 15, marginBottom: 10 }}>
+                <Text style={{
+                  fontFamily: 'Avenir', fontSize: 14, color: '#757373'
+                }}>
+                  Because you saved stories about Spain
+                </Text>
+              </View>
+              <View style={{ marginHorizontal: 10, marginBottom: 10 }}>
+                <FlatList
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  keyExtractor={(item, index) => index}
+                  data={this.state.stories}
+                  renderItem={({ item }) => {
+                    return (
+                      <ImageBackground
+                        style={{ marginHorizontal: windowWidth * 0.015, width: windowWidth * 0.455, height: 150, zIndex: -1}}
+                        source={{uri: item.coverPhotoUrl}}
+                      >
+                        <View style={{width: windowWidth * 0.455, height: 150, backgroundColor: 'rgba(0,0,0,.4)', zIndex: 1}}/>
+                        <View style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          paddingTop: 15,
+                          paddingHorizontal: 10,
+                          backgroundColor: 'transparent',
+                          alignItems: 'flex-start',
+                          width: windowWidth * 0.455,
+                          height: 150,
+                          flexDirection: 'column',
+                          zIndex: 5
+                        }}>
+                          <Text style={{
+                            color: 'white',
+                            fontSize: 10,
+                            fontWeight: 'bold',
+                            fontFamily: 'Avenir',
+                            backgroundColor: 'transparent',
+                          }}>
+                            {item.city === item.country
+                              ? item.city.toUpperCase()
+                              : item.city.toUpperCase().concat(', ').concat(item.country.toUpperCase())}
+                          </Text>
+                          <Text style={{
+                            position: 'absolute',
+                            bottom: 32,
+                            left: 10,
+                            color: 'white',
+                            fontSize: 16,
+                            fontWeight: 'bold',
+                            fontFamily: 'Avenir',
+                            backgroundColor: 'transparent',
+                            textAlign: 'left',
+                            flexWrap: 'wrap'
+                          }}>
+                            {item.title.toUpperCase()}
+                          </Text>
+                          <Divider style={{ width: 20, height: 1, marginTop: 3, marginLeft: 1, backgroundColor: 'white' }} />
+                          <Text style={{
+                            position: 'absolute',
+                            bottom: 12,
+                            left: 10,
+                            color: 'white',
+                            fontSize: 11,
+                            fontFamily: 'AvenirNext-Italic',
+                            backgroundColor: 'transparent',
+                          }}>
+                            {item.travelPeriod}
+                          </Text>
+                        </View>
+                      </ImageBackground>
+                    );
+                  }}
+                />
+              </View>
+            </View>
+{/* stories for you view closed */}
+
+            <View>
+              <View style={{ marginLeft: 15, marginTop: 35, marginBottom: 10 }}>
+                <Text style={{ fontFamily: 'Avenir', fontSize: 18, color: '#373535', fontWeight: 'bold' }}>
+                  Popular keywords
+                </Text>
+              </View>
+              <View style={{ marginHorizontal: 15 }}>
+                <FlatList
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  keyExtractor={(item, index) => index}
+                  data={this.state.keywords}
+                  renderItem={({ item }) => {
+                    return (
+                      <View style={{ width: 150 }}>
+                        <Image
+                          style={{ width: 150 * 0.91, height: 120, borderRadius: 5 }}
+                          source={{ uri: item.imgUrl }}
+                        />
+                        <Text style={{ fontFamily: 'Avenir', marginTop: 4, marginLeft: 3 }}>{item.keyword}</Text>
+                      </View>
+                    );
+                  }}
+                />
+              </View>
+            </View>
+{/* popular keywords view closed */}
+
+            <View>
+              <View style={{ marginLeft: 15, marginTop: 45, marginBottom: 10 }}>
+                <Text style={{ fontFamily: 'Avenir', fontSize: 18, color: '#373535', fontWeight: 'bold' }}>
+                  Popular locations
+                </Text>
+              </View>
+              <View style={{ marginHorizontal: 15 }}>
+                <FlatList
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  keyExtractor={(item, index) => index}
+                  data={this.state.locations}
+                  renderItem={({ item }) => {
+                    return (
+                      <View style={{ width: 140 }}>
+                        <Image
+                          style={{ width: 140 * 0.91, height: 150 }}
+                          source={{ uri: item.imgUrl }}
+                        />
+                        <Text style={{ fontFamily: 'Avenir', marginTop: 4, marginLeft: 3 }}>{item.location}</Text>
+                      </View>
+                    );
+                  }}
+                />
+              </View>
+            </View>
+{/* popular locations view closed */}
+
+          </View> // default page view closed
+        }
+        </ScrollView>
       </View>
-    );
+    )
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollView: {
-    position: "absolute",
-    bottom: 30,
-    left: 0,
-    right: 0,
-    paddingVertical: 10,
-  },
-  endPadding: {
-    paddingRight: width - CARD_WIDTH,
-  },
-  card: {
-    padding: 10,
-    elevation: 2,
-    backgroundColor: "#FFF",
-    marginHorizontal: 10,
-    shadowColor: "#000",
-    shadowRadius: 5,
-    shadowOpacity: 0.3,
-    shadowOffset: { x: 2, y: -2 },
-    height: CARD_HEIGHT,
-    width: CARD_WIDTH,
-    overflow: "hidden",
-  },
-  cardImage: {
-    flex: 3,
-    width: "100%",
-    height: "100%",
-    alignSelf: "center",
-  },
-  textContent: {
-    flex: 1,
-  },
-  cardtitle: {
-    fontSize: 12,
-    marginTop: 5,
-    fontWeight: "bold",
-  },
-  cardDescription: {
-    fontSize: 12,
-    color: "#444",
-  },
-  markerWrap: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  marker: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "rgba(130,4,150, 0.9)",
-  },
-  ring: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: "rgba(130,4,150, 0.3)",
-    position: "absolute",
-    borderWidth: 1,
-    borderColor: "rgba(130,4,150, 0.5)",
-  },
-});
-
-
-// import React from "react";
-// import { ScrollView, Text, Linking, View, TouchableOpacity } from "react-native";
-// import { Button } from "react-native-elements";
-// import {
-//   Image,
-//   ListView,
-//   Tile,
-//   Title,
-//   Subtitle,
-//   Overlay,
-//   Screen,
-//   Divider,
-//   Card,
-//   Caption,
-//   GridRow
-// } from '@shoutem/ui';
-//
-//
-// // const stories = [
-// //   {
-// //     key: 1,
-// //     name: "Spain trip in summer '16",
-// //     image: require("../images/1.jpg"),
-// //     url: "https://unsplash.com/photos/C9t94JC4_L8"
-// //   },
-// //   {
-// //     key: 2,
-// //     name: "Jeju with besties",
-// //     image: require("../images/2.jpg"),
-// //     url: "https://unsplash.com/photos/waZEHLRP98s"
-// //   },
-// //   {
-// //     key: 3,
-// //     name: "All of the foods in Japan",
-// //     image: require("../images/3.jpg"),
-// //     url: "https://unsplash.com/photos/cFplR9ZGnAk"
-// //   },
-// //   {
-// //     key: 4,
-// //     name: "Backpacking in Australia",
-// //     image: require("../images/4.jpg"),
-// //     url: "https://unsplash.com/photos/89PFnHKg8HE"
-// //   }
-// // ];
-//
-// export default class Home extends React.Component {
-//   constructor(props) {
-//     super(props);
-//     this.renderRow = this.renderRow.bind(this);
-//     this.state = {
-//       restaurants: [{
-//         "name": "Gaspar Brasserie",
-//         "address": "185 Sutter St, San Francisco, CA 94109",
-//         "image": { "url": "https://shoutem.github.io/static/getting-started/restaurant-1.jpg" },
-//       }, {
-//         "name": "Chalk Point Kitchen",
-//         "address": "527 Broome St, New York, NY 10013",
-//         "image": { "url": "https://shoutem.github.io/static/getting-started/restaurant-2.jpg" },
-//       }],
-//     }
-//   }
-//
-//   renderRow(restaurant) {
-//     return (
-//       <View>
-//         <Image
-//           styleName="large-banner"
-//           source={{ uri: restaurant.image.url }}
-//         >
-//           <Tile>
-//             <Title styleName="md-gutter-bottom">{restaurant.name}</Title>
-//             <Subtitle styleName="sm-gutter-horizontal">{restaurant.address}</Subtitle>
-//           </Tile>
-//         </Image>
-//         <Divider styleName="line" />
-//       </View>
-//     );
-//   }
-//
-//   render() {
-//     return (
-//       <Screen>
-//         <ListView
-//           data={this.state.restaurants}
-//           renderRow={this.renderRow}
-//         />
-//       </Screen>
-//     );
-//   }
-// }

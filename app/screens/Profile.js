@@ -1,37 +1,158 @@
 /* eslint-disable */
 import React from "react";
-import { StyleSheet, View, ScrollView, Text, Image, Dimensions, TouchableOpacity } from "react-native";
-import { Icon } from 'react-native-elements'
-import MapView from 'react-native-maps';
-
-// import {styles} from '../styles/styles';
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  Text,
+  Image,
+  ImageBackground,
+  Dimensions,
+  TouchableOpacity,
+  StatusBar,
+  Animated,
+  Modal
+} from "react-native";
+import { Icon, Divider } from 'react-native-elements'
+import { TabViewAnimated, TabBar, SceneMap } from 'react-native-tab-view';
 // import { onSignOut } from "../auth";
 
-const { width, height } = Dimensions.get('window');
+import UserMapModal from '../components/UserMapModal';
 
-const windowWidth = Dimensions.get('window').width - 36;
-var IMAGES_PER_ROW = 4;
+const windowWidth = Dimensions.get('window').width;
 
 export default class Profile extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      image: null
+      isUserMapClicked: false,
+      index: 0,
+      routes: [
+        { key: 'stories', title: '6 STORIES' },
+        { key: 'saved', title: '2 SAVED' },
+      ],
+      stories: [{
+        title: "Backpacking in Straya",
+        city: "Melbourne",
+        country: "Australia",
+        coordinates: {
+          latitude: -37.81361100000001,
+          longitude: 144.963056,
+        },
+        travelPeriod: "20-27 Dec 2016",
+        coverPhotoUrl: "https://www.realestate.com.au/neighbourhoods/content/suburb/editorial/vic/melbourne-3000/intro01-2.jpg",
+      }, {
+        title: "Japan with besties",
+        city: "Tokyo",
+        country: "Japan",
+        coordinates: {
+          latitude: 35.7090259,
+          longitude: 139.7319925,
+        },
+        travelPeriod: "30 Jul - 15 Aug 2017",
+        coverPhotoUrl: "https://shoutem.github.io/static/getting-started/restaurant-3.jpg",
+      }, {
+        title: "First time in Spain",
+        city: "Madrid",
+        country: "Spain",
+        coordinates: {
+          latitude: 40.4167754,
+          longitude: -3.7037902,
+        },
+        travelPeriod: "15-28 Jan 2016",
+        coverPhotoUrl: "https://www.amawaterways.com/Assets/CruiseGallery/Large/provencespain_barcelona_parcguell_ss_407568172_gallery.jpg",
+      }, {
+        title: "Honeymoon in Africa",
+        city: "Cape Town",
+        country: "South Africa",
+        coordinates: {
+          latitude: -33.9248685,
+          longitude: 18.4240553,
+        },
+        travelPeriod: "24-30 Sep 2013",
+        coverPhotoUrl: "https://images.fineartamerica.com/images-medium-large/lions-head-sunset-johaar-bassier.jpg",
+      }, {
+        title: "Hola como estas",
+        city: "Rio de Janeiro",
+        country: "Brazil",
+        coordinates: {
+          latitude: -22.9068467,
+          longitude: -43.17289650000001,
+        },
+        travelPeriod: "2 Feb - 4 Mar 2014",
+        coverPhotoUrl: "https://cache-graphicslib.viator.com/graphicslib/thumbs360x240/2484/SITours/corcovado-mountain-and-christ-redeemer-statue-half-day-tour-in-rio-de-janeiro-128058.jpg",
+      }, {
+        title: "Back home",
+        city: "Seoul",
+        country: "South Korea",
+        coordinates: {
+          latitude: 37.566535,
+          longitude: 126.9779692,
+        },
+        travelPeriod: "17 Jul - 14 Oct 2017",
+        coverPhotoUrl: "https://upload.wikimedia.org/wikipedia/commons/8/8f/Seoul-Namdaemun-at.night-02.jpg",
+      }],
     };
   }
 
-  calculatedSize(length) {
-    return {width: windowWidth / length, height: windowWidth / 5}
-  }
+  _handleIndexChange = index => this.setState({ index });
 
-  renderRandomChunk(imagesArr) {
-    const array = imagesArr.slice(0);
+  _renderLabel = props => ({ route, index }) => {
+   const inputRange = props.navigationState.routes.map((x, i) => i);
+   const outputRange = inputRange.map(
+     inputIndex => (inputIndex === index ? '#be922c' : '#7c7878')
+   );
+   const color = props.position.interpolate({
+     inputRange,
+     outputRange,
+   });
+
+   return (
+     <Animated.Text style={[{ fontSize: 14, fontFamily: 'Avenir', marginVertical: 6 }, { color }]}>
+       {route.title}
+     </Animated.Text>
+   );
+ };
+
+  _renderHeader = props => <TabBar {...props}
+    style={{ backgroundColor: 'white' }}
+    indicatorStyle={{ backgroundColor: '#be922c' }}
+    renderLabel={this._renderLabel(props)}
+    pressOpacity={0.5}
+  />;
+
+  _renderScene = ({ route }) => {
+    switch (route.key) {
+      case 'stories':
+        return (
+          <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+            <View style={{ marginBottom: windowWidth * 0.03 }}>
+              {this.renderImagesInGroups()}
+            </View>
+          </ScrollView>
+        );
+      case 'saved':
+        return (
+          <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+            <View style={{ marginBottom: windowWidth * 0.03 }}>
+              {this.renderImagesInGroups()}
+            </View>
+          </ScrollView>
+        );
+      default:
+        return null;
+    }
+  };
+
+  renderChunk(storiesArr) {
+    const array = storiesArr.slice(0);
     const length = array.length;
     const result = [];
     let sum = 0;
+    let c = 1;
 
     while (sum < length) {
-      const willAdd = Math.floor(Math.random() * 3) + 2;
+      const willAdd = c % 2 === 0 ? 2 : 1;
       const tuple = [];
       for (let i = 0; i < willAdd; i++) {
         if (array[i]) { tuple.push(array[i]) }
@@ -39,115 +160,141 @@ export default class Profile extends React.Component {
       if (tuple.length > 0) { result.push(tuple) }
       array.splice(0, willAdd);
       sum += willAdd;
+      c++;
     }
    return result;
   }
 
-  renderRow(images) {
-    return images.map((uri, i) => {
-      return(
-        <Image key={i} style={[{margin: 0}, this.calculatedSize(images.length)]} source={uri} />
+  renderRow(stories, index) {
+    return stories.map((story, i) => {
+      let imageStyle;
+      if (index % 2 === 0) {
+        imageStyle = {marginTop: windowWidth * 0.03, marginHorizontal: windowWidth * 0.03 , width: windowWidth * 0.94, height: 150}
+      } else if (i === 0) {
+        imageStyle = {marginTop: windowWidth * 0.03, marginLeft: windowWidth * 0.03, marginRight: windowWidth * 0.015, width: windowWidth * 0.455, height: 150}
+      } else if (i === 1) {
+        imageStyle = {marginTop: windowWidth * 0.03, marginLeft: windowWidth * 0.015, marginRight: windowWidth * 0.03, width: windowWidth * 0.455, height: 150}
+      }
+      return (
+        <ImageBackground
+          key={i}
+          style={[imageStyle, {zIndex: -1}]}
+          source={{uri: story.coverPhotoUrl}}
+        >
+          <View style={{width: imageStyle.width, height: imageStyle.height, backgroundColor: 'rgba(0,0,0,.4)', zIndex: 1}}/>
+          <View style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            paddingTop: 15,
+            paddingHorizontal: 10,
+            backgroundColor: 'transparent',
+            alignItems: 'flex-start',
+            width: imageStyle.width,
+            height: imageStyle.height,
+            flexDirection: 'column',
+            zIndex: 5
+          }}>
+            <Text style={{
+              color: 'white',
+              fontSize: 10,
+              fontWeight: 'bold',
+              fontFamily: 'Avenir',
+              backgroundColor: 'transparent',
+            }}>
+              {story.city === story.country
+                ? story.city.toUpperCase()
+                : story.city.toUpperCase().concat(', ').concat(story.country.toUpperCase())}
+            </Text>
+            <Text style={{
+              position: 'absolute',
+              bottom: 32,
+              left: 10,
+              color: 'white',
+              fontSize: 16,
+              fontWeight: 'bold',
+              fontFamily: 'Avenir',
+              backgroundColor: 'transparent',
+              textAlign: 'left',
+              flexWrap: 'wrap'
+            }}>
+              {story.title.toUpperCase()}
+            </Text>
+            <Divider style={{ width: 20, height: 1, marginTop: 3, marginLeft: 1, backgroundColor: 'white' }} />
+            <Text style={{
+              position: 'absolute',
+              bottom: 12,
+              left: 10,
+              color: 'white',
+              fontSize: 11,
+              fontFamily: 'AvenirNext-Italic',
+              backgroundColor: 'transparent',
+            }}>
+              {story.travelPeriod}
+            </Text>
+          </View>
+        </ImageBackground>
       );
     })
   }
 
   renderImagesInGroups() {
-    return this.renderRandomChunk(IMAGE_URLS).map((imagesForRow, i) => {
+    return this.renderChunk(this.state.stories).map((storiesForRow, index) => {
       return (
-        <View style={{margin: 0, flexDirection: "row"}} key={i}>
-          {this.renderRow(imagesForRow)}
+        <View style={{margin: 0, flexDirection: "row"}} key={index}>
+          {this.renderRow(storiesForRow, index)}
         </View>
       )
     })
   }
 
+  toggleUserMap() {
+    this.setState({ isUserMapClicked: !this.state.isUserMapClicked });
+  }
+
   render() {
-    let { image } = this.state;
+    let { index, routes, isUserMapClicked } = this.state;
     return (
-      <View style={{ flex: 1, paddingTop: 25, backgroundColor: "white" }}>
-        <View style={{ margin: 8, alignSelf: "flex-end", flexDirection: "row" }}>
-          <Icon type='simple-line-icon' name="map" size={23} color="grey" style={{ marginRight: 14 }}/>
-          <Icon type='simple-line-icon' name="settings" size={23} color="grey" style={{ marginRight: 7 }}/>
-        </View>
-        <View
-          style={{
-            alignItems: "center",
-            justifyContent: "center",
-            alignSelf: "center",
-            marginBottom: 20
-          }}
-        >
+      <View style={{ flex: 1 }}>
+        <View style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 120, paddingTop: 25, backgroundColor: "white",
+          justifyContent: "center", alignItems: "center", flexDirection: "row" }}>
           <Image
             style={{
-              margin: 10,
-              height: 120,
-              width: 120,
-              borderRadius: 60
+              marginRight: 20,
+              width: 80,
+              height: 80,
+              borderRadius: 40
             }}
             source={{uri:'https://s3.us-east-2.amazonaws.com/coderaising-cs/KakaoTalk_Photo_2017-03-27-14-38-15.jpeg'}}
             resizeMode="cover"
           />
-          <Text style={{ color: '#565656', fontFamily: 'Avenir', fontSize: 17, fontWeight: 'bold' }}>Jenny Hong</Text>
+          <View>
+            <Text style={{ color: '#3b3939', fontFamily: 'Avenir', fontSize: 17, fontWeight: 'bold' }}>Jenny Hong</Text>
+            <Divider style={{ width: 25, height: 3, marginTop: 3, backgroundColor: '#3b3939' }} />
+            <View style={{ flexDirection: "row", marginTop: 14, marginLeft: 2 }}>
+              <Icon type='simple-line-icon' name="globe-alt" size={23} color="#737171" style={{ marginRight: 16 }} onPress={() => this.toggleUserMap()} />
+              <Icon type='simple-line-icon' name="settings" size={23} color="#737171" />
+            </View>
+          </View>
         </View>
-
-        <ScrollView style={{ marginLeft: 18, marginRight: 18}}>
-          <View style={styles.container}>
-            <MapView
-              provider={this.props.provider}
-              style={styles.map}
-              initialRegion={this.state.region}
-              onPress={(e) => this.onMapPress(e)}
-            >
-              {this.state.markers.map((marker, i) => (
-                <MapView.Marker
-                  key={marker.key}
-                  coordinate={marker.coordinate}
-                  pinColor={marker.color}
-                  key={i}
-                />
-              ))}
-            </MapView>
-          </View>
-
-          <View style={{ marginBottom: 25 }}>
-            <View style={{ marginBottom: 6, borderRadius: 10, overflow: 'hidden' }}>
-              {this.renderImagesInGroups()}
-            </View>
-            <Text style={{ color: '#565656', fontFamily: 'Avenir', fontSize: 15, fontWeight: 'bold'}}>Backpacking in Australia</Text>
-            <View style={{marginTop: 4, flexDirection: "row"}}>
-              <Icon type='simple-line-icon' name="calendar" size={15} color="grey" style={{ marginRight: 5 }}/>
-              <Text style={{ color: 'grey', fontFamily: 'Avenir', fontSize: 10, marginRight: 10}}>July 16-21</Text>
-              <Icon type='simple-line-icon' name="location-pin" size={15} color="grey" style={{ marginRight: 5}}/>
-              <Text style={{ color: 'grey', fontFamily: 'Avenir', fontSize: 10}}>Sydney, Australia</Text>
-            </View>
-          </View>
-
-          <View style={{ marginBottom: 25 }}>
-            <View style={{ marginBottom: 6, borderRadius: 10, overflow: 'hidden' }}>
-              {this.renderImagesInGroups()}
-            </View>
-            <Text style={{ color: '#565656', fontFamily: 'Avenir', fontSize: 15, fontWeight: 'bold'}}>Jeju with besties</Text>
-            <View style={{marginTop: 4, flexDirection: "row"}}>
-              <Icon type='simple-line-icon' name="calendar" size={15} color="grey" style={{ marginRight: 5 }}/>
-              <Text style={{ color: 'grey', fontFamily: 'Avenir', fontSize: 10, marginRight: 10}}>Aug 5-8</Text>
-              <Icon type='simple-line-icon' name="location-pin" size={15} color="grey" style={{ marginRight: 5}}/>
-              <Text style={{ color: 'grey', fontFamily: 'Avenir', fontSize: 10}}>Jeju, South Korea</Text>
-            </View>
-          </View>
-
-          <View style={{ marginBottom: 20 }}>
-            <View style={{ marginBottom: 6, borderRadius: 10, overflow: 'hidden' }}>
-              {this.renderImagesInGroups()}
-            </View>
-            <Text style={{ color: '#565656', fontFamily: 'Avenir', fontSize: 15, fontWeight: 'bold'}}>All of the foods in Japan</Text>
-            <View style={{marginTop: 4, flexDirection: "row"}}>
-              <Icon type='simple-line-icon' name="calendar" size={15} color="grey" style={{ marginRight: 5 }}/>
-              <Text style={{ color: 'grey', fontFamily: 'Avenir', fontSize: 10, marginRight: 10}}>Mar 21-28</Text>
-              <Icon type='simple-line-icon' name="location-pin" size={15} color="grey" style={{ marginRight: 5}}/>
-              <Text style={{ color: 'grey', fontFamily: 'Avenir', fontSize: 10}}>Tokyo, Japan</Text>
-            </View>
-          </View>
-        </ScrollView>
+        <Modal
+          animationType="fade"
+          transparent={false}
+          onRequestClose={() => { }}
+          visible={isUserMapClicked}
+        >
+          <UserMapModal
+            toggleUserMap={this.toggleUserMap.bind(this)}
+            stories={this.state.stories}
+          />
+        </Modal>
+        <TabViewAnimated
+          style={{ marginTop: 120 }}
+          navigationState={{ index, routes }}
+          renderScene={this._renderScene}
+          renderHeader={this._renderHeader}
+          onIndexChange={this._handleIndexChange}
+        />
       </View>
     )
   }
@@ -162,41 +309,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 25
   },
-  map: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  bubble: {
-    backgroundColor: 'rgba(255,255,255,0.7)',
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    borderRadius: 20,
-  },
-  latlng: {
-    width: 200,
-    alignItems: 'stretch',
-  },
 });
-
-
-// <Card title="John Doe">
-//   <View
-//     style={{
-//       backgroundColor: "#bcbec1",
-//       alignItems: "center",
-//       justifyContent: "center",
-//       width: 80,
-//       height: 80,
-//       borderRadius: 40,
-//       alignSelf: "center",
-//       marginBottom: 20
-//     }}
-//   >
-//     <Text style={{ color: "white", fontSize: 28 }}>JD</Text>
-//   </View>
-//   <Button
-//     backgroundColor="#03A9F4"
-//     title="SIGN OUT"
-//   />
-// </Card>
-
-// onPress={() => onSignOut()}

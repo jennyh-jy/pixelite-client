@@ -5,13 +5,24 @@ import { StyleSheet, View, ScrollView, Text, TextInput, Image, ImageBackground, 
 import { Icon, Button, FormLabel, FormInput, Divider } from 'react-native-elements';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import ParallaxScrollView from 'react-native-parallax-scroll-view';
+import { RNS3 } from 'react-native-aws3';
+import axios from 'react-native-axios';
+import * as _ from 'lodash';
 
-import { GOOGLE_GEOCODING_API_KEY, GOOGLE_PLACES_API_KEY } from '../../apis';
+import { GOOGLE_PLACES_API_KEY, AWS_ACCESS_KEY, AWS_SECRET_KEY } from '../../apis';
 import PhotoGrid from '../components/PhotoGrid';
 import StoryMapModal from '../components/StoryMapModal';
-import FloatingLabelInput from '../components/FloatingLabelInput';
+// import FloatingLabelInput from '../components/FloatingLabelInput';
 
 const ImagePicker = NativeModules.ImageCropPicker;
+const options = {
+  keyPrefix: "uploads/",
+  bucket: "pixelite-s3",
+  region: "us-east-2",
+  accessKey: AWS_ACCESS_KEY,
+  secretKey: AWS_SECRET_KEY,
+  successActionStatus: 201
+}
 
 // const styles = StyleSheet.create({
 //   container: {
@@ -280,6 +291,47 @@ export default class NewStory extends Component {
     this.setState({ coverPhotoUrl: photoUrl })
   }
 
+  cancelNewStory() {
+    this.props.navigation.goBack();
+  }
+
+  saveImageToS3(uri) {
+    const file = {
+      uri: `file://${uri}`,
+      name: `${uri.slice(uri.lastIndexOf('/') + 1)}`,
+      type: "image/jpg"
+    }
+    RNS3.put(file, options).then(response => {
+      if (response.status !== 201)
+        throw new Error("Failed to upload image to S3");
+    });
+  }
+
+  uploadStory() {
+    const items = _.flattenDeep(Object.values(this.state.selectedPhotos));
+    items.forEach((item) => this.saveImageToS3(item.url));
+    const urls = items.map((item) => 'https://s3.us-east-2.amazonaws.com/pixelite-s3/uploads/' + item.url.slice(item.url.lastIndexOf('/') + 1));
+    const newStory = {
+      title: this.state.titleValue,
+      description: this.state.textValue,
+      dates: Object.keys(this.state.selectedPhotos),
+      items,
+      city: this.state.selectedCity,
+      country: this.state.selectedCountry,
+      coordinates: this.state.selectedCoordinates,
+      maplocations: this.state.locations,
+      travelPeriod: this.state.travelPeriod,
+      coverPhotoUrl: this.state.coverPhotoUrl,
+    }
+    for (let i = 0; i < newStory.items.length; i++) {
+      newStory.items[i].url = urls[i];
+    }
+    console.log(newStory);
+    axios.post('http://10.130.105.184:5000/jenny', newStory)
+    .then(res => console.log(res))
+    .catch(err => console.log(err))
+  }
+
   render() {
     const { isStoryMapClicked, arePhotosSelected, isTextEditable, selectedPhotos, coverPhotoUrl, selectedCity, selectedCountry, travelPeriod } = this.state;
     console.log(this.state.selectedPhotos);
@@ -287,12 +339,13 @@ export default class NewStory extends Component {
     return (
       <View style={{ flex: 1, paddingTop: 25, backgroundColor: 'white' }}>
         <View style={{ position: 'relative', width: windowWidth, height: 40 }}>
-          <View style={{ position: 'absolute', left: 8, justifyContent: 'center', alignItems: 'flex-start', width: 38, height: 38 }}>
+          <View style={{ position: 'absolute', left: 8, justifyContent: 'center', alignItems: 'flex-start', width: 25, height: 25, zIndex: 10 }}>
             <Icon
               type="material-community"
               name="close"
               color="grey"
               size={23}
+              onPress={() => this.cancelNewStory()}
             />
           </View>
           <View style={{ position: 'absolute', justifyContent: 'center', alignItems: 'center', width: windowWidth, height: 40 }}>
@@ -309,8 +362,8 @@ export default class NewStory extends Component {
             Story Title
           </FormLabel>
           <FormInput
-            containerStyle={{ borderBottomWidth: 0.83, borderBottomColor: '#b5b5b5', width: windowWidth - 40, height: 33 }}
-            inputStyle={{ fontFamily: 'Avenir', fontSize: 15, color: 'black', paddingLeft: 5, paddingRight: 5, paddingTop: 4.5, paddingBottom: 4.5 }}
+            containerStyle={{ borderBottomWidth: 0.8, borderBottomColor: '#b5b5b5', height: 33 }}
+            inputStyle={{ fontFamily: 'Avenir', fontSize: 15, color: 'black', paddingLeft: 5, paddingRight: 5, paddingTop: 4.5, paddingBottom: 9 }}
             placeholder='e.g. Summer escapades in Australia'
             placeholderTextColor='#A8A8A8'
             value={this.state.titleValue}
@@ -319,7 +372,7 @@ export default class NewStory extends Component {
             selectionColor={'#4286f4'}
           />
           <Text style={{
-            fontFamily: 'Avenir', fontSize: 15, color: '#373535', marginTop: 15,
+            fontFamily: 'Avenir', fontSize: 15, color: '#373535', marginTop: 15, marginBottom: 3,
             marginLeft: 20, marginRight: 20
           }}>
             Where did you travel to?
@@ -357,7 +410,7 @@ export default class NewStory extends Component {
             styles={{
               container: {
                 flex: 0,
-                marginTop: 10,
+                marginTop: 2,
                 marginLeft: 20,
                 marginRight: 20,
                 zIndex: 2,
@@ -368,9 +421,10 @@ export default class NewStory extends Component {
                 fontFamily: 'Avenir',
               },
               textInputContainer: {
-                height: 28.8,
+                height: 30,
                 borderTopWidth: 0,
                 borderBottomWidth: 0.8,
+                backgroundColor: 'transparent',
               },
               textInput: {
                 fontFamily: 'Avenir',
@@ -461,7 +515,7 @@ export default class NewStory extends Component {
                       color: 'white',
                       fontSize: 12,
                       paddingTop: 5,
-                      fontFamily: 'Avenir',
+                      fontFamily: 'AvenirNext-Italic',
                       backgroundColor: 'transparent',
                     }}>
                       {travelPeriod}
@@ -480,7 +534,7 @@ export default class NewStory extends Component {
                     name="map"
                     size={18}
                     color="white"
-                    iconStyle={{ textAlign: 'center', paddingTop: 11, paddingBottom: 8, paddingHorizontal: 11, borderRadius: 20.5, borderWidth: 1, borderColor: '#b3adad' }}
+                    iconStyle={{ textAlign: 'center', paddingTop: 11, paddingBottom: 8, paddingHorizontal: 11, borderRadius: 20.5, borderWidth: 1.5, borderColor: '#b3adad' }}
                     onPress={() => this.toggleStoryMap()}
                   />
                 </View>
@@ -491,7 +545,7 @@ export default class NewStory extends Component {
                     name="picture"
                     size={18}
                     color="white"
-                    iconStyle={{ textAlign: 'center', paddingTop: 11, paddingBottom: 8, paddingHorizontal: 11, borderRadius: 20.5, borderWidth: 1, borderColor: '#b3adad' }}
+                    iconStyle={{ textAlign: 'center', paddingTop: 11, paddingBottom: 8, paddingHorizontal: 11, borderRadius: 20.5, borderWidth: 1.5, borderColor: '#b3adad' }}
                     onPress={() => this.pickMultiple()}
                   />
                 </View>
@@ -502,7 +556,7 @@ export default class NewStory extends Component {
                     name="format-text"
                     size={18}
                     color="white"
-                    iconStyle={{ textAlign: 'center', paddingTop: 11, paddingBottom: 8, paddingHorizontal: 11, borderRadius: 20.5, borderWidth: 1, borderColor: '#b3adad' }}
+                    iconStyle={{ textAlign: 'center', paddingTop: 11, paddingBottom: 8, paddingHorizontal: 11, borderRadius: 20.5, borderWidth: 1.5, borderColor: '#b3adad' }}
                     onPress={() => this.toggleEditable()}
                   />
                 </View>
@@ -547,7 +601,7 @@ export default class NewStory extends Component {
                       'Are you sure you want to upload this story?',
                       [
                         { text: 'Nah', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-                        { text: 'Yes', onPress: () => console.log('uploaded!') }
+                        { text: 'Yes', onPress: () => {this.uploadStory(); console.log('uploaded!')} }
                       ]
                     )}
                   />
@@ -572,18 +626,18 @@ export default class NewStory extends Component {
               />
               {!isTextEditable
                 ? <View style={{ alignItems: 'center', alignSelf: 'center', width: windowWidth - 50 }}>
-                    <Text style={{ color: '#707070', fontFamily: 'AvenirNext-Italic', fontSize: 14, textAlign: 'center' }}>
+                    <Text style={{ color: '#282626', fontFamily: 'Avenir', fontSize: 14, textAlign: 'center' }}>
                       {this.state.textValue}
                     </Text>
                     {this.state.textValue === ''
                       ? null
-                      : <Divider style={{ width: 20, height: 4, backgroundColor: '#f7d074', marginTop: 15, marginBottom: 25 }} />
+                      : <Divider style={{ width: 20, height: 3, backgroundColor: '#f7d074', marginTop: 15, marginBottom: 25 }} />
                     }
                   </View>
                 : <View style={{ justifyContent: 'flex-start', alignSelf: 'center', width: windowWidth - 30, height: 120, marginTop: 5, marginLeft: 20 }}>
                     <TextInput
                       style={{ width: windowWidth - 50, height: 100, borderColor: '#b5b5b5', borderWidth: 1, fontSize: 14,
-                              fontFamily: 'AvenirNext-Italic', padding: 10 }}
+                              fontFamily: 'Avenir', padding: 10 }}
                       placeholder='Add text...'
                       onChangeText={(textValue) => this.setState({textValue})}
                       value={this.state.textValue}
@@ -606,8 +660,8 @@ export default class NewStory extends Component {
                 this.compareDates(Object.keys(selectedPhotos)).map(date => (
                   <View key={`entireView-${date}`} style={{ marginBottom: 18 }}>
                     <View key={`dateTextView-${date}`} style={{ flexDirection: 'column' }}>
-                      <Text style={{ color: '#282626', fontWeight: 'bold', fontFamily: 'Avenir', fontSize: 14, marginLeft: 20, marginBottom: 8 }}>{date}</Text>
-                      <Divider style={{ width: 15, height: 3, backgroundColor: '#282626', marginLeft: 20, marginBottom: 20 }} />
+                      <Text style={{ color: '#595757', fontWeight: 'bold', fontFamily: 'AvenirNext-Italic', fontSize: 13, marginLeft: 20, marginBottom: 4 }}>{date}</Text>
+                      <Divider style={{ width: 15, height: 2, backgroundColor: '#595757', marginLeft: 20, marginBottom: 20 }} />
                     </View>
                     <PhotoGrid
                       compareDates={this.compareDates.bind(this)}

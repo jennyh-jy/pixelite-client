@@ -114,19 +114,15 @@ export default class PhotoGrid extends Component {
   renderPhotoRow1(row) {
     return (
       <View key={1} style={styles.alignCenter}>
-        {
-          row.map(
-            (item, index) => {
-              return (
-                <View key={index} style={[styles.photoView, { borderRadius: this.props.borderRadius }]}>
-                  <TouchableOpacity onPress={() => { this.photoPopupToggle(item.url, item.location) }}>
-                    <Image source={{ uri: item.url }} style={[styles.imageStyle, { borderRadius: this.props.borderRadius }]} />
-                  </TouchableOpacity>
-                </View>
-              )
-            }
+        {row.map((item, index) => {
+          return (
+            <View key={index} style={[styles.photoView, { borderRadius: this.props.borderRadius }]}>
+              <TouchableOpacity onPress={() => { this.photoPopupToggle(item.url, item.location) }}>
+                <Image source={{ uri: item.url }} style={[styles.imageStyle, { borderRadius: this.props.borderRadius }]} />
+              </TouchableOpacity>
+            </View>
           )
-        }
+        })}
       </View>
     )
   }
@@ -262,14 +258,12 @@ export default class PhotoGrid extends Component {
       let chunk = _.chunk(this.props.photosList, 9);
       return (
         <View style={[styles.container]}>
-        {
-          chunk.map((chunkItem, index) => {
-            let row = _.chunk(chunkItem, 3);
-            return row.map((rowItem, rowIndex) => {
-              return this.renderPhotoRow(rowItem, rowIndex);
-            })
+        {chunk.map((chunkItem, index) => {
+          let row = _.chunk(chunkItem, 3);
+          return row.map((rowItem, rowIndex) => {
+            return this.renderPhotoRow(rowItem, rowIndex);
           })
-        }
+        })}
         </View>
       );
     }
@@ -300,7 +294,7 @@ export default class PhotoGrid extends Component {
 
   getIndexFromSlide(array) {
     let index;
-    array.find((element,i) => {
+    array.find((element, i) => {
       if (element.source.uri === this.state.currentPhotoUrl) {
         index = i;
         return true;
@@ -333,12 +327,12 @@ export default class PhotoGrid extends Component {
                   onPress={() => this.photoPopupToggle()}
                 />
               </View>
-              <View style={{ position: 'absolute', alignItems: 'flex-end', top: 10, right: 45, zIndex: 10, width: 38, height: 38 }}>
+              <View style={{ position: 'absolute', alignItems: 'flex-end', top: 10, right: 55, zIndex: 10, width: 38, height: 38 }}>
                 <Icon
-                  type="simple-line-icon"
-                  name="notebook"
+                  type="material-community"
+                  name="image-filter"
                   color="white"
-                  size={22}
+                  size={23}
                   onPress={() => Alert.alert(
                     'Change story cover',
                     'Do you want to change your story cover to this photo?',
@@ -352,12 +346,12 @@ export default class PhotoGrid extends Component {
                   )}
                 />
               </View>
-              <View style={{ position: 'absolute', alignItems: 'flex-end', top: 9, right: 10, zIndex: 10, width: 38, height: 38 }}>
+              <View style={{ position: 'absolute', alignItems: 'flex-end', top: 9, right: 15, zIndex: 10, width: 38, height: 38 }}>
                 <Icon
-                  type="simple-line-icon"
-                  name="trash"
+                  type="font-awesome"
+                  name="trash-o"
                   color="white"
-                  size={23}
+                  size={24}
                   onPress={() => Alert.alert(
                     'Delete photo',
                     'Are you sure you want to delete this photo?',
@@ -440,7 +434,7 @@ export default class PhotoGrid extends Component {
                   hidden={true}
                 />
                 <View style={{ flexDirection: 'row', width: '100%', height: 42 }}>
-                  <View style={{ position: 'absolute', alignItems: 'flex-start', top: 8, left: 8, width: '50%', height: 34 }}>
+                  <View style={{ position: 'absolute', alignItems: 'flex-start', top: 8, left: 8, width: 33, height: 33 }}>
                     <Icon
                       type="material-community"
                       name="close"
@@ -449,7 +443,12 @@ export default class PhotoGrid extends Component {
                       onPress={() => {this.setState({ tempPlace: null }); this.searchPlacesPopupToggle()}}
                     />
                   </View>
-                  <View style={{ position: 'absolute', alignItems: 'flex-end', top: 8, right: 8, width: '50%', height: 34 }}>
+                  <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', height: 42, zIndex: -1 }}>
+                    <Text style={{ color: '#2d2d2d', fontFamily: 'Avenir', fontSize: 18 }}>
+                      Locations
+                    </Text>
+                  </View>
+                  <View style={{ position: 'absolute', alignItems: 'flex-end', top: 8, right: 8, width: 33, height: 33 }}>
                     <Icon
                       type="material-community"
                       name="check"
@@ -467,7 +466,7 @@ export default class PhotoGrid extends Component {
                   </View>
                 </View>
                 <GooglePlacesAutocomplete
-                  placeholder='Search Location'
+                  placeholder='Search location'
                   minLength={2} // minimum length of text to search
                   autoFocus={false}
                   returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
